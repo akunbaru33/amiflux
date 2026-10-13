@@ -259,7 +259,9 @@
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--rose-dark); border-radius: 3px; }
 
-        main { position: relative; z-index: 1; }
+        main { position: relative; }
+        .modal { z-index: 1060 !important; }
+        .modal-backdrop { z-index: 1050 !important; }
     </style>
     {% block head %}{% endblock %}
 </head>
