@@ -50,35 +50,8 @@
         <div id="resultArea" style="display:none;">
             <hr class="rose-divider">
 
-            <!-- NFToken Banner -->
-            <div id="tokenBanner" style="display:none;" class="token-banner mb-4">
-                <div style="font-size:1.8rem; margin-bottom:6px;">🎬✨</div>
-                <h4 style="color:#ff2b56; font-family:'Playfair Display',serif; font-weight:700; margin-bottom:8px; text-shadow:0 0 15px rgba(255,43,86,0.4);">
-                    Your Netflix Link is Ready!
-                </h4>
-                <p style="color:#ffccd5; font-size:0.95rem; margin-bottom:22px;">
-                    One click and you're both watching Netflix together 💕
-                </p>
-                <div class="d-flex gap-3 justify-content-center flex-wrap mb-4">
-                    <a id="directWatchBtn" href="#" target="_blank" class="btn btn-rose btn-lg" style="font-size:1.05rem;">
-                        🖥️ Watch on PC
-                    </a>
-                    <a id="mobileWatchBtn" href="#" target="_blank" class="btn btn-rose-outline btn-lg" style="font-size:1.05rem;">
-                        📱 Watch on Mobile
-                    </a>
-                </div>
-                <div style="color:#e0a8b4; font-size:0.85rem;">
-                    ⏰ Link expires: <span id="tokenExpiry" style="color:#ffffff; font-weight:600;">—</span>
-                </div>
-            </div>
-
-            <!-- No Token Fallback -->
-            <div id="noTokenBanner" style="display:none;" class="alert alert-danger text-center mb-4">
-                ⚠️ Couldn't generate auto-login link for this one. Try again for another cookie!
-            </div>
-
             <!-- Account Info -->
-            <div class="row g-3">
+            <div class="row g-3 mb-4">
                 <div class="col-md-4">
                     <div class="info-card">
                         <div style="color:#ff4d6d; font-size:0.85rem; font-weight:700; letter-spacing:0.5px; margin-bottom:8px;">
@@ -109,6 +82,33 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- NFToken Banner -->
+            <div id="tokenBanner" style="display:none;" class="token-banner mb-4">
+                <div style="font-size:1.8rem; margin-bottom:6px;">🎬✨</div>
+                <h4 style="color:#ff2b56; font-family:'Playfair Display',serif; font-weight:700; margin-bottom:8px; text-shadow:0 0 15px rgba(255,43,86,0.4);">
+                    Your Netflix Link is Ready!
+                </h4>
+                <p style="color:#ffccd5; font-size:0.95rem; margin-bottom:22px;">
+                    One click and you're both watching Netflix together 💕
+                </p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap mb-4">
+                    <a id="directWatchBtn" href="#" target="_blank" class="btn btn-rose btn-lg" style="font-size:1.05rem;">
+                        🖥️ Watch on PC
+                    </a>
+                    <a id="mobileWatchBtn" href="#" target="_blank" class="btn btn-rose-outline btn-lg" style="font-size:1.05rem;">
+                        📱 Watch on Mobile
+                    </a>
+                </div>
+                <div style="color:#e0a8b4; font-size:0.85rem;">
+                    ⏰ Link expires: <span id="tokenExpiry" style="color:#ffffff; font-weight:600;">—</span>
+                </div>
+            </div>
+
+            <!-- No Token Fallback -->
+            <div id="noTokenBanner" style="display:none;" class="alert alert-danger text-center mb-4">
+                ⚠️ Couldn't generate auto-login link for this one. Try again for another cookie!
             </div>
 
             <!-- Hidden raw cookie (for JS internals) -->
