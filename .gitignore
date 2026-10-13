@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.pyo
+*.db
+.env
+*.log
+check_db.py
+migrate.py
