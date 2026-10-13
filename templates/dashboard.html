@@ -94,21 +94,10 @@
                 </div>
             </div>
 
-            <!-- Cookie String -->
-            <label style="color:#b3b3b3;font-size:0.85rem;"><i class="bi bi-clipboard"></i> Cookie String</label>
-            <div class="result-box mb-2" id="resCookieStr">—</div>
-            <div class="d-flex gap-2 mb-3">
-                <button class="btn btn-outline-light btn-sm" onclick="copyText('resCookieStr')">
-                    <i class="bi bi-clipboard"></i> Copy Cookie
-                </button>
-                <button class="btn btn-outline-secondary btn-sm" onclick="downloadTxt()">
-                    <i class="bi bi-download"></i> Download .txt
-                </button>
-            </div>
-
-            <!-- Cookie TXT Content -->
-            <label style="color:#b3b3b3;font-size:0.85rem;"><i class="bi bi-file-text"></i> Cookie File Content</label>
-            <div class="result-box" id="resCookieTxt">—</div>
+            <!-- Cookie String (hidden) -->
+            <div id="resCookieStr" style="display:none;">—</div>
+            <!-- Cookie TXT Content (hidden) -->
+            <div id="resCookieTxt" style="display:none;">—</div>
         </div>
     </div>
 </div>
