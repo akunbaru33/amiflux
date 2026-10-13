@@ -91,16 +91,16 @@
                         <td>
                             <div class="d-flex gap-2 flex-wrap">
                                 <!-- Change Password -->
-                                <button class="btn btn-rose-outline btn-sm"
+                                <button class="btn btn-rose-outline btn-sm px-3"
                                     onclick="showPassModal({{ u['id'] }}, '{{ u['username'] }}')">
-                                    <i class="bi bi-key"></i>
+                                    🔑 Ganti Password
                                 </button>
                                 <!-- Delete -->
                                 {% if u['id'] != current_user.id %}
                                 <form method="POST" action="{{ url_for('admin_delete_user', user_id=u['id']) }}"
-                                    onsubmit="return confirm('Delete user {{ u['username'] }}?')">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">
-                                        <i class="bi bi-trash"></i>
+                                    onsubmit="return confirm('Hapus user {{ u['username'] }}?')">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm px-3">
+                                        🗑️ Hapus
                                     </button>
                                 </form>
                                 {% endif %}
