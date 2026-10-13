@@ -7,8 +7,8 @@ import os
 import json
 import secrets
 import string
-import psycopg2
-import psycopg2.extras
+import psycopg
+from psycopg.rows import dict_row
 from datetime import datetime, timedelta
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
@@ -16,7 +16,7 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
 def get_con():
     """Open a new PostgreSQL connection."""
-    return psycopg2.connect(DATABASE_URL)
+    return psycopg.connect(DATABASE_URL)
 
 
 # ═══════════════════════════════════════════════════════
@@ -410,7 +410,7 @@ def init_web_admin(admin_username: str, admin_password: str):
 
 def get_web_user_by_id(user_id: int):
     con = get_con()
-    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur = con.cursor(row_factory=dict_row)
     cur.execute("SELECT * FROM web_users WHERE id = %s", (user_id,))
     row = cur.fetchone()
     con.close()
@@ -419,7 +419,7 @@ def get_web_user_by_id(user_id: int):
 
 def get_web_user_by_username(username: str):
     con = get_con()
-    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur = con.cursor(row_factory=dict_row)
     cur.execute("SELECT * FROM web_users WHERE LOWER(username) = LOWER(%s)", (username,))
     row = cur.fetchone()
     con.close()
@@ -428,7 +428,7 @@ def get_web_user_by_username(username: str):
 
 def get_all_web_users():
     con = get_con()
-    cur = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur = con.cursor(row_factory=dict_row)
     cur.execute("SELECT * FROM web_users ORDER BY id")
     rows = cur.fetchall()
     con.close()
