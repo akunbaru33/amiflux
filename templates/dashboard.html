@@ -6,9 +6,9 @@
     <!-- Stock count -->
     <div class="col-md-4">
         <div class="stats-card">
-            <div style="font-size:1.8rem; margin-bottom:4px;">🎬</div>
+            <div style="font-size:2rem; margin-bottom:4px;">🎬</div>
             <div class="stats-number" id="hitsCount">{{ hits_count }}</div>
-            <div style="color:#9e7b8a; font-size:0.9rem; margin-top:4px;">Movies Ready for Tonight</div>
+            <div style="color:#ff85a1; font-size:0.95rem; font-weight:600; margin-top:4px;">Movies Ready for Tonight 🍿</div>
         </div>
     </div>
     <!-- Welcome -->
@@ -16,12 +16,12 @@
         <div class="card h-100">
             <div class="card-body d-flex align-items-center" style="padding:24px;">
                 <div>
-                    <h4 style="color:#c9637c; font-family:'Playfair Display',serif; margin-bottom:8px;">
+                    <h3 style="color:#ff2b56; font-family:'Playfair Display',serif; font-weight:700; margin-bottom:8px; text-shadow:0 0 12px rgba(255,43,86,0.3);">
                         Ready for movie night? 🌹
-                    </h4>
-                    <p style="color:#9e7b8a; margin:0; font-size:0.95rem;">
-                        Click <strong style="color:#e8a0b4;">Generate</strong> below to get a fresh Netflix
-                        1-click login link. Grab your popcorn! 🍿
+                    </h3>
+                    <p style="color:#ffccd5; margin:0; font-size:1rem; font-weight:400; line-height:1.6;">
+                        Click <strong style="color:#ff4d6d; text-decoration:underline;">Generate</strong> below to get a fresh Netflix
+                        1-click login link. Sit back & enjoy together! 💕
                     </p>
                 </div>
             </div>
@@ -31,7 +31,7 @@
 
 <!-- Generate Area -->
 <div class="card">
-    <div class="card-header py-3">
+    <div class="card-header py-3" style="color:#ff4d6d; font-size:1.15rem;">
         💕 Netflix Auto-Login Generator
     </div>
     <div class="card-body py-4">
@@ -52,23 +52,23 @@
 
             <!-- NFToken Banner -->
             <div id="tokenBanner" style="display:none;" class="token-banner mb-4">
-                <div style="font-size:1.5rem; margin-bottom:8px;">🎬✨</div>
-                <h5 style="color:#e8a0b4; font-family:'Playfair Display',serif; margin-bottom:6px;">
+                <div style="font-size:1.8rem; margin-bottom:6px;">🎬✨</div>
+                <h4 style="color:#ff2b56; font-family:'Playfair Display',serif; font-weight:700; margin-bottom:8px; text-shadow:0 0 15px rgba(255,43,86,0.4);">
                     Your Netflix Link is Ready!
-                </h5>
-                <p style="color:#9e7b8a; font-size:0.875rem; margin-bottom:20px;">
+                </h4>
+                <p style="color:#ffccd5; font-size:0.95rem; margin-bottom:22px;">
                     One click and you're both watching Netflix together 💕
                 </p>
                 <div class="d-flex gap-3 justify-content-center flex-wrap mb-4">
-                    <a id="directWatchBtn" href="#" target="_blank" class="btn btn-rose btn-lg">
+                    <a id="directWatchBtn" href="#" target="_blank" class="btn btn-rose btn-lg" style="font-size:1.05rem;">
                         🖥️ Watch on PC
                     </a>
-                    <a id="mobileWatchBtn" href="#" target="_blank" class="btn btn-rose-outline btn-lg">
+                    <a id="mobileWatchBtn" href="#" target="_blank" class="btn btn-rose-outline btn-lg" style="font-size:1.05rem;">
                         📱 Watch on Mobile
                     </a>
                 </div>
-                <div style="color:#5a3a48; font-size:0.78rem;">
-                    ⏰ Link expires: <span id="tokenExpiry" style="color:#9e7b8a;">—</span>
+                <div style="color:#e0a8b4; font-size:0.85rem;">
+                    ⏰ Link expires: <span id="tokenExpiry" style="color:#ffffff; font-weight:600;">—</span>
                 </div>
             </div>
 
@@ -81,20 +81,32 @@
             <div class="row g-3">
                 <div class="col-md-4">
                     <div class="info-card">
-                        <div style="color:#9e7b8a; font-size:0.8rem; margin-bottom:6px;">📧 Account</div>
-                        <div id="resEmail" style="font-weight:700; color:#f0dde6; word-break:break-all; font-size:0.9rem;">—</div>
+                        <div style="color:#ff4d6d; font-size:0.85rem; font-weight:700; letter-spacing:0.5px; margin-bottom:8px;">
+                            📧 ACCOUNT
+                        </div>
+                        <div id="resEmail" style="font-weight:700; color:#ffffff; word-break:break-all; font-size:0.95rem;">
+                            —
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="info-card">
-                        <div style="color:#9e7b8a; font-size:0.8rem; margin-bottom:6px;">🌍 Country</div>
-                        <div id="resCountry" style="font-weight:700; color:#f0dde6; font-size:1.1rem;">—</div>
+                        <div style="color:#ff4d6d; font-size:0.85rem; font-weight:700; letter-spacing:0.5px; margin-bottom:8px;">
+                            🌍 COUNTRY
+                        </div>
+                        <div id="resCountry" style="font-weight:700; color:#ffffff; font-size:1.2rem;">
+                            —
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="info-card">
-                        <div style="color:#9e7b8a; font-size:0.8rem; margin-bottom:6px;">🎞️ Quality</div>
-                        <div id="resQuality"><span class="badge-quality">—</span></div>
+                        <div style="color:#ff4d6d; font-size:0.85rem; font-weight:700; letter-spacing:0.5px; margin-bottom:8px;">
+                            🎞️ QUALITY
+                        </div>
+                        <div id="resQuality">
+                            <span class="badge-quality">—</span>
+                        </div>
                     </div>
                 </div>
             </div>

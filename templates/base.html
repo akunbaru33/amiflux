@@ -5,19 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Our Cinema 💕{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --rose:      #c9637c;
-            --rose-dark: #a04060;
-            --rose-deep: #7a1f3a;
-            --rose-glow: rgba(201,99,124,0.25);
-            --bg:        #0a0006;
-            --card:      #140a10;
-            --card2:     #1e1018;
-            --border:    #3d1f2a;
-            --text:      #f0dde6;
-            --muted:     #9e7b8a;
+            --rose:        #ff2b56;        /* Vivid romantic crimson red */
+            --rose-bright: #ff4d6d;        /* Bright passion red */
+            --rose-dark:   #c9183b;        /* Rich ruby red */
+            --rose-deep:   #800f2f;        /* Deep romantic velvet red */
+            --rose-glow:   rgba(255, 43, 86, 0.4);
+            --bg:          #080204;
+            --card:        #130508;
+            --card2:       #1d080e;
+            --border:      #4a101d;
+            --text:        #ffffff;
+            --text-red:    #ff3366;
+            --muted:       #e0a8b4;
         }
 
         * { box-sizing: border-box; }
@@ -25,120 +27,126 @@
         body {
             background-color: var(--bg);
             background-image:
-                radial-gradient(ellipse at 20% 20%, rgba(120,20,50,0.15) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 80%, rgba(100,10,40,0.12) 0%, transparent 60%);
+                radial-gradient(ellipse at 20% 20%, rgba(200,20,50,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(180,10,40,0.15) 0%, transparent 60%);
             color: var(--text);
-            font-family: 'Lato', sans-serif;
+            font-family: 'Poppins', sans-serif;
             min-height: 100vh;
         }
 
         h1, h2, h3, h4, h5, .brand-font {
             font-family: 'Playfair Display', serif;
+            color: var(--text-red);
         }
 
         /* ── Navbar ── */
         .navbar {
-            background: linear-gradient(90deg, #060003, #120608) !important;
-            border-bottom: 1px solid var(--border);
-            box-shadow: 0 2px 20px rgba(201,99,124,0.1);
+            background: linear-gradient(90deg, #090103, #180509) !important;
+            border-bottom: 1.5px solid var(--border);
+            box-shadow: 0 4px 25px rgba(255,43,86,0.15);
         }
         .navbar-brand {
             color: var(--rose) !important;
             font-family: 'Playfair Display', serif;
             font-weight: 900;
-            font-size: 1.35rem;
+            font-size: 1.4rem;
             letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(255,43,86,0.5);
         }
-        .nav-link { color: var(--text) !important; font-size: 0.9rem; }
-        .nav-link:hover { color: var(--rose) !important; }
+        .nav-link { color: #fce4ec !important; font-size: 0.92rem; font-weight: 500; }
+        .nav-link:hover { color: var(--rose-bright) !important; }
 
         /* ── Cards ── */
         .card {
             background-color: var(--card);
             border: 1px solid var(--border);
             border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+            box-shadow: 0 6px 30px rgba(0,0,0,0.6);
         }
         .card-header {
-            background: linear-gradient(90deg, #120608, #1e0c14);
+            background: linear-gradient(90deg, #180509, #240910);
             border-bottom: 1px solid var(--border);
             font-weight: 700;
-            color: var(--rose);
+            color: var(--rose-bright);
             font-family: 'Playfair Display', serif;
             border-radius: 16px 16px 0 0 !important;
+            font-size: 1.1rem;
         }
 
         /* ── Buttons ── */
         .btn-rose {
-            background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+            background: linear-gradient(135deg, var(--rose-bright), var(--rose-dark));
             border: none;
             color: #fff;
             font-weight: 700;
             border-radius: 50px;
-            padding: 12px 32px;
+            padding: 13px 34px;
             font-size: 1rem;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 20px var(--rose-glow);
+            box-shadow: 0 6px 25px var(--rose-glow);
             letter-spacing: 0.5px;
         }
         .btn-rose:hover {
-            background: linear-gradient(135deg, #d4748a, var(--rose));
+            background: linear-gradient(135deg, #ff6b8b, var(--rose));
             color: #fff;
             transform: translateY(-2px);
-            box-shadow: 0 6px 28px rgba(201,99,124,0.45);
+            box-shadow: 0 8px 30px rgba(255,43,86,0.6);
         }
         .btn-rose:disabled {
-            background: #3d2030;
+            background: #4a1824;
             box-shadow: none;
             transform: none;
         }
         .btn-rose-outline {
-            background: transparent;
-            border: 1.5px solid var(--rose);
-            color: var(--rose);
+            background: rgba(255,43,86,0.06);
+            border: 2px solid var(--rose);
+            color: #ff6b8b;
             font-weight: 600;
             border-radius: 50px;
-            padding: 10px 28px;
+            padding: 11px 30px;
             transition: all 0.3s ease;
         }
         .btn-rose-outline:hover {
-            background: var(--rose-glow);
+            background: var(--rose);
             color: #fff;
-            border-color: #d4748a;
+            border-color: var(--rose-bright);
+            box-shadow: 0 4px 20px var(--rose-glow);
         }
 
         /* ── Stats Card ── */
         .stats-card {
-            background: linear-gradient(135deg, #120608, #1e0c14);
-            border: 1px solid var(--rose-deep);
+            background: linear-gradient(135deg, #180509, #290a12);
+            border: 1.5px solid var(--rose-deep);
             border-radius: 16px;
             padding: 24px;
             text-align: center;
-            box-shadow: 0 4px 24px rgba(120,30,58,0.3);
+            box-shadow: 0 6px 30px rgba(128,15,47,0.35);
         }
         .stats-number {
-            font-size: 2.8rem;
+            font-size: 3rem;
             font-weight: 900;
-            color: var(--rose);
+            color: var(--rose-bright);
             font-family: 'Playfair Display', serif;
+            text-shadow: 0 0 20px rgba(255,43,86,0.5);
         }
 
         /* ── Token Banner ── */
         .token-banner {
-            background: linear-gradient(135deg, #120008, #200a15, #120008);
-            border: 1px solid var(--rose-deep);
+            background: linear-gradient(135deg, #180307, #2b0811, #180307);
+            border: 1.5px solid var(--rose);
             border-radius: 16px;
             padding: 28px 20px;
             text-align: center;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 0 35px rgba(255,43,86,0.25);
         }
         .token-banner::before {
             content: '';
             position: absolute;
             top: -50%; left: -50%;
             width: 200%; height: 200%;
-            background: radial-gradient(ellipse, rgba(201,99,124,0.06) 0%, transparent 60%);
+            background: radial-gradient(ellipse, rgba(255,43,86,0.12) 0%, transparent 60%);
             pointer-events: none;
         }
 
@@ -146,47 +154,53 @@
         .info-card {
             background: var(--card2);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
+            border-radius: 14px;
+            padding: 18px;
             text-align: center;
+            transition: transform 0.2s;
+        }
+        .info-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--rose);
         }
 
         /* ── Badge ── */
         .badge-quality {
-            background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+            background: linear-gradient(135deg, var(--rose-bright), var(--rose-dark));
             color: #fff;
             border-radius: 20px;
-            padding: 3px 14px;
-            font-size: 0.8rem;
+            padding: 4px 16px;
+            font-size: 0.85rem;
             font-weight: 700;
             letter-spacing: 1px;
+            box-shadow: 0 2px 10px rgba(255,43,86,0.4);
         }
 
         /* ── Forms ── */
         .form-control, .form-select {
-            background-color: #0e0610;
-            border: 1px solid var(--border);
-            color: var(--text);
+            background-color: #0e0306;
+            border: 1.5px solid var(--border);
+            color: #ffffff;
             border-radius: 10px;
             padding: 12px 16px;
         }
         .form-control:focus, .form-select:focus {
-            background-color: #0e0610;
-            border-color: var(--rose);
-            color: var(--text);
-            box-shadow: 0 0 0 0.2rem var(--rose-glow);
+            background-color: #0e0306;
+            border-color: var(--rose-bright);
+            color: #ffffff;
+            box-shadow: 0 0 0 0.25rem var(--rose-glow);
         }
-        .form-control::placeholder { color: #5a3a48; }
+        .form-control::placeholder { color: #874352; }
 
         /* ── Table ── */
-        .table { color: var(--text); }
-        .table thead th { color: var(--rose); border-color: var(--border); font-family: 'Playfair Display', serif; }
-        .table tbody td { border-color: #2a1520; }
-        .table tbody tr:hover { background-color: #1a0e14; }
+        .table { color: #ffffff; }
+        .table thead th { color: var(--rose-bright); border-color: var(--border); font-family: 'Playfair Display', serif; }
+        .table tbody td { border-color: #2b0b14; }
+        .table tbody tr:hover { background-color: #1f0810; }
 
         /* ── Alerts ── */
-        .alert-success { background-color: #0a1a0e; border-color: #1a4a22; color: #6fcf97; border-radius: 12px; }
-        .alert-danger  { background-color: #1a080e; border-color: var(--rose-deep); color: #e8a0b4; border-radius: 12px; }
+        .alert-success { background-color: #0d2612; border-color: #1b5e20; color: #81c784; border-radius: 12px; }
+        .alert-danger  { background-color: #24050b; border-color: var(--rose-deep); color: #ff85a1; border-radius: 12px; }
 
         /* ── Floating hearts ── */
         .hearts-bg {
@@ -200,30 +214,30 @@
         .heart {
             position: absolute;
             bottom: -30px;
-            font-size: 1rem;
+            font-size: 1.1rem;
             opacity: 0;
             animation: floatHeart linear infinite;
         }
         @keyframes floatHeart {
             0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
-            10%  { opacity: 0.4; }
-            90%  { opacity: 0.15; }
-            100% { transform: translateY(-100vh) rotate(30deg); opacity: 0; }
+            10%  { opacity: 0.45; }
+            90%  { opacity: 0.2; }
+            100% { transform: translateY(-100vh) rotate(35deg); opacity: 0; }
         }
 
         /* ── Divider ── */
         .rose-divider {
             border: none;
             height: 1px;
-            background: linear-gradient(90deg, transparent, var(--rose-deep), transparent);
-            margin: 24px 0;
+            background: linear-gradient(90deg, transparent, var(--rose), transparent);
+            margin: 26px 0;
         }
 
         /* ── Footer ── */
         footer {
             border-top: 1px solid var(--border);
             color: var(--muted);
-            font-size: 0.8rem;
+            font-size: 0.85rem;
         }
 
         /* ── Result box (hidden but kept for JS) ── */
@@ -277,7 +291,7 @@
                 <li class="nav-item">
                     <span class="nav-link" style="color:var(--muted);">
                         👤 {{ current_user.username }}
-                        {% if current_user.is_admin() %}<span class="badge" style="background:var(--rose);font-size:0.6rem;border-radius:20px;">ADMIN</span>{% endif %}
+                        {% if current_user.is_admin() %}<span class="badge" style="background:var(--rose);font-size:0.65rem;border-radius:20px;">ADMIN</span>{% endif %}
                     </span>
                 </li>
                 <li class="nav-item">
@@ -322,7 +336,7 @@
         h.classList.add('heart');
         h.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
         h.style.left = Math.random() * 100 + 'vw';
-        h.style.fontSize = (Math.random() * 1 + 0.5) + 'rem';
+        h.style.fontSize = (Math.random() * 0.9 + 0.6) + 'rem';
         const dur = Math.random() * 12 + 8;
         h.style.animationDuration = dur + 's';
         h.style.animationDelay = Math.random() * 5 + 's';
