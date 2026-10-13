@@ -1,48 +1,50 @@
 {% extends "base.html" %}
-{% block title %}Admin Panel — NF Checker{% endblock %}
+{% block title %}Admin Panel — Our Cinema 💕{% endblock %}
 
 {% block content %}
-<h4 class="mb-4"><i class="bi bi-shield-check" style="color:#e50914;"></i> Admin Panel</h4>
+<h4 class="mb-4" style="color:#c9637c; font-family:'Playfair Display',serif;">
+    🔐 Cinema Management
+</h4>
 
 <div class="row g-3 mb-4">
     <div class="col-md-3">
         <div class="stats-card">
             <div class="stats-number">{{ users|length }}</div>
-            <div style="color:#b3b3b3;font-size:0.9rem;">Web Users</div>
+            <div style="color:#9e7b8a;font-size:0.9rem;">Registered Lovers / Users</div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="stats-card">
             <div class="stats-number">{{ hits_count }}</div>
-            <div style="color:#b3b3b3;font-size:0.9rem;">Cookie Stock</div>
+            <div style="color:#9e7b8a;font-size:0.9rem;">Movies in Stock</div>
         </div>
     </div>
 </div>
 
 <!-- Add User -->
 <div class="card mb-4">
-    <div class="card-header"><i class="bi bi-person-plus"></i> Add New User</div>
+    <div class="card-header"><i class="bi bi-person-plus"></i> Add Account For Partner / Friend</div>
     <div class="card-body">
         <form method="POST" action="{{ url_for('admin_add_user') }}">
             <div class="row g-3 align-items-end">
                 <div class="col-md-4">
-                    <label class="form-label" style="color:#b3b3b3;">Username</label>
-                    <input type="text" name="username" class="form-control" placeholder="e.g. john" required>
+                    <label class="form-label" style="color:#9e7b8a;">Username</label>
+                    <input type="text" name="username" class="form-control" placeholder="e.g. sweetheart" required>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label" style="color:#b3b3b3;">Password</label>
+                    <label class="form-label" style="color:#9e7b8a;">Password</label>
                     <input type="text" name="password" class="form-control" placeholder="Min. 4 characters" required>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label" style="color:#b3b3b3;">Role</label>
+                    <label class="form-label" style="color:#9e7b8a;">Role</label>
                     <select name="role" class="form-select">
                         <option value="user">User</option>
                         <option value="admin">Admin</option>
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <button type="submit" class="btn btn-netflix w-100">
-                        <i class="bi bi-plus-lg"></i> Add User
+                    <button type="submit" class="btn btn-rose w-100">
+                        <i class="bi bi-plus-lg"></i> Add Account
                     </button>
                 </div>
             </div>
@@ -52,7 +54,7 @@
 
 <!-- User List -->
 <div class="card">
-    <div class="card-header"><i class="bi bi-people"></i> Manage Users</div>
+    <div class="card-header"><i class="bi bi-people"></i> Manage Accounts</div>
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
@@ -71,25 +73,25 @@
                     <tr>
                         <td style="color:#666;">{{ u['id'] }}</td>
                         <td>
-                            <i class="bi bi-person-circle" style="color:#e50914;"></i>
+                            <i class="bi bi-heart-fill" style="color:#c9637c;font-size:0.8rem;"></i>
                             {{ u['username'] }}
                             {% if u['id'] == current_user.id %}
-                            <span class="badge bg-secondary" style="font-size:0.65rem;">You</span>
+                            <span class="badge" style="background:#7a1f3a;font-size:0.65rem;">You</span>
                             {% endif %}
                         </td>
                         <td>
                             {% if u['role'] == 'admin' %}
-                            <span class="badge" style="background:#e50914;">ADMIN</span>
+                            <span class="badge" style="background:var(--rose);">ADMIN</span>
                             {% else %}
-                            <span class="badge bg-secondary">USER</span>
+                            <span class="badge" style="background:#3d1f2a;">USER</span>
                             {% endif %}
                         </td>
-                        <td style="color:#b3b3b3;font-size:0.85rem;">{{ u['created_at'] or '—' }}</td>
-                        <td style="color:#b3b3b3;font-size:0.85rem;">{{ u['last_login'] or 'Never' }}</td>
+                        <td style="color:#9e7b8a;font-size:0.85rem;">{{ u['created_at'] or '—' }}</td>
+                        <td style="color:#9e7b8a;font-size:0.85rem;">{{ u['last_login'] or 'Never' }}</td>
                         <td>
                             <div class="d-flex gap-2 flex-wrap">
                                 <!-- Change Password -->
-                                <button class="btn btn-outline-warning btn-sm"
+                                <button class="btn btn-rose-outline btn-sm"
                                     onclick="showPassModal({{ u['id'] }}, '{{ u['username'] }}')">
                                     <i class="bi bi-key"></i>
                                 </button>
@@ -107,7 +109,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="6" class="text-center" style="color:#555;padding:30px;">No users yet.</td>
+                        <td colspan="6" class="text-center" style="color:#9e7b8a;padding:30px;">No accounts yet.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -119,19 +121,21 @@
 <!-- Change Password Modal -->
 <div class="modal fade" id="passModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content" style="background:#1f1f1f;border:1px solid #333;color:#fff;">
-            <div class="modal-header" style="border-color:#333;">
-                <h5 class="modal-title"><i class="bi bi-key"></i> Change Password</h5>
+        <div class="modal-content" style="background:#140a10;border:1px solid #3d1f2a;color:#f0dde6;">
+            <div class="modal-header" style="border-color:#3d1f2a;">
+                <h5 class="modal-title" style="color:#c9637c;font-family:'Playfair Display',serif;">
+                    <i class="bi bi-key"></i> Change Password
+                </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form id="passForm" method="POST">
                 <div class="modal-body">
-                    <p style="color:#b3b3b3;">Changing password for: <strong id="passUsername"></strong></p>
+                    <p style="color:#9e7b8a;">Changing password for: <strong id="passUsername" style="color:#f0dde6;"></strong></p>
                     <input type="password" name="new_password" class="form-control" placeholder="New password (min. 4 chars)" required minlength="4">
                 </div>
-                <div class="modal-footer" style="border-color:#333;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-netflix">Update Password</button>
+                <div class="modal-footer" style="border-color:#3d1f2a;">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-rose">Update Password</button>
                 </div>
             </form>
         </div>

@@ -3,74 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Netflix Checker{% endblock %}</title>
+    <title>{% block title %}Our Cinema 💕{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --nf-red: #e50914;
-            --nf-dark: #141414;
-            --nf-gray: #1f1f1f;
-            --nf-light: #b3b3b3;
+            --rose:      #c9637c;
+            --rose-dark: #a04060;
+            --rose-deep: #7a1f3a;
+            --rose-glow: rgba(201,99,124,0.25);
+            --bg:        #0a0006;
+            --card:      #140a10;
+            --card2:     #1e1018;
+            --border:    #3d1f2a;
+            --text:      #f0dde6;
+            --muted:     #9e7b8a;
         }
+
+        * { box-sizing: border-box; }
+
         body {
-            background-color: var(--nf-dark);
-            color: #fff;
-            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 20% 20%, rgba(120,20,50,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(100,10,40,0.12) 0%, transparent 60%);
+            color: var(--text);
+            font-family: 'Lato', sans-serif;
             min-height: 100vh;
         }
+
+        h1, h2, h3, h4, h5, .brand-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* ── Navbar ── */
         .navbar {
-            background-color: #000 !important;
-            border-bottom: 2px solid var(--nf-red);
+            background: linear-gradient(90deg, #060003, #120608) !important;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 20px rgba(201,99,124,0.1);
         }
         .navbar-brand {
-            color: var(--nf-red) !important;
+            color: var(--rose) !important;
+            font-family: 'Playfair Display', serif;
             font-weight: 900;
-            font-size: 1.5rem;
+            font-size: 1.35rem;
             letter-spacing: 1px;
         }
-        .nav-link { color: #fff !important; }
-        .nav-link:hover { color: var(--nf-red) !important; }
+        .nav-link { color: var(--text) !important; font-size: 0.9rem; }
+        .nav-link:hover { color: var(--rose) !important; }
+
+        /* ── Cards ── */
         .card {
-            background-color: var(--nf-gray);
-            border: 1px solid #333;
-            border-radius: 12px;
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
         }
         .card-header {
-            background-color: #000;
-            border-bottom: 1px solid #333;
+            background: linear-gradient(90deg, #120608, #1e0c14);
+            border-bottom: 1px solid var(--border);
             font-weight: 700;
+            color: var(--rose);
+            font-family: 'Playfair Display', serif;
+            border-radius: 16px 16px 0 0 !important;
         }
-        .btn-netflix {
-            background-color: var(--nf-red);
+
+        /* ── Buttons ── */
+        .btn-rose {
+            background: linear-gradient(135deg, var(--rose), var(--rose-dark));
             border: none;
             color: #fff;
             font-weight: 700;
-            border-radius: 8px;
-            padding: 10px 28px;
-            transition: background 0.2s;
+            border-radius: 50px;
+            padding: 12px 32px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px var(--rose-glow);
+            letter-spacing: 0.5px;
         }
-        .btn-netflix:hover { background-color: #b2070f; color: #fff; }
-        .btn-netflix:disabled { background-color: #555; }
-        .badge-quality {
-            background-color: var(--nf-red);
+        .btn-rose:hover {
+            background: linear-gradient(135deg, #d4748a, var(--rose));
             color: #fff;
-            border-radius: 6px;
-            padding: 2px 10px;
-            font-size: 0.8rem;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(201,99,124,0.45);
         }
+        .btn-rose:disabled {
+            background: #3d2030;
+            box-shadow: none;
+            transform: none;
+        }
+        .btn-rose-outline {
+            background: transparent;
+            border: 1.5px solid var(--rose);
+            color: var(--rose);
+            font-weight: 600;
+            border-radius: 50px;
+            padding: 10px 28px;
+            transition: all 0.3s ease;
+        }
+        .btn-rose-outline:hover {
+            background: var(--rose-glow);
+            color: #fff;
+            border-color: #d4748a;
+        }
+
+        /* ── Stats Card ── */
         .stats-card {
-            background: linear-gradient(135deg, #1a0000, #2a0a0a);
-            border: 1px solid var(--nf-red);
-            border-radius: 12px;
-            padding: 20px;
+            background: linear-gradient(135deg, #120608, #1e0c14);
+            border: 1px solid var(--rose-deep);
+            border-radius: 16px;
+            padding: 24px;
             text-align: center;
+            box-shadow: 0 4px 24px rgba(120,30,58,0.3);
         }
         .stats-number {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: 900;
-            color: var(--nf-red);
+            color: var(--rose);
+            font-family: 'Playfair Display', serif;
         }
+
+        /* ── Token Banner ── */
+        .token-banner {
+            background: linear-gradient(135deg, #120008, #200a15, #120008);
+            border: 1px solid var(--rose-deep);
+            border-radius: 16px;
+            padding: 28px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .token-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(ellipse, rgba(201,99,124,0.06) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* ── Info Cards ── */
+        .info-card {
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        /* ── Badge ── */
+        .badge-quality {
+            background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+            color: #fff;
+            border-radius: 20px;
+            padding: 3px 14px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* ── Forms ── */
+        .form-control, .form-select {
+            background-color: #0e0610;
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 10px;
+            padding: 12px 16px;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: #0e0610;
+            border-color: var(--rose);
+            color: var(--text);
+            box-shadow: 0 0 0 0.2rem var(--rose-glow);
+        }
+        .form-control::placeholder { color: #5a3a48; }
+
+        /* ── Table ── */
+        .table { color: var(--text); }
+        .table thead th { color: var(--rose); border-color: var(--border); font-family: 'Playfair Display', serif; }
+        .table tbody td { border-color: #2a1520; }
+        .table tbody tr:hover { background-color: #1a0e14; }
+
+        /* ── Alerts ── */
+        .alert-success { background-color: #0a1a0e; border-color: #1a4a22; color: #6fcf97; border-radius: 12px; }
+        .alert-danger  { background-color: #1a080e; border-color: var(--rose-deep); color: #e8a0b4; border-radius: 12px; }
+
+        /* ── Floating hearts ── */
+        .hearts-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .heart {
+            position: absolute;
+            bottom: -30px;
+            font-size: 1rem;
+            opacity: 0;
+            animation: floatHeart linear infinite;
+        }
+        @keyframes floatHeart {
+            0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10%  { opacity: 0.4; }
+            90%  { opacity: 0.15; }
+            100% { transform: translateY(-100vh) rotate(30deg); opacity: 0; }
+        }
+
+        /* ── Divider ── */
+        .rose-divider {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--rose-deep), transparent);
+            margin: 24px 0;
+        }
+
+        /* ── Footer ── */
+        footer {
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+
+        /* ── Result box (hidden but kept for JS) ── */
         .result-box {
             background-color: #000;
             border: 1px solid #333;
@@ -82,94 +238,100 @@
             word-break: break-all;
             color: #0f0;
         }
-        .table { color: #fff; }
-        .table thead th { color: var(--nf-red); border-color: #333; }
-        .table tbody td { border-color: #2a2a2a; }
-        .table tbody tr:hover { background-color: #1f1f1f; }
-        .form-control, .form-select {
-            background-color: #0a0a0a;
-            border: 1px solid #444;
-            color: #fff;
-        }
-        .form-control:focus, .form-select:focus {
-            background-color: #0a0a0a;
-            border-color: var(--nf-red);
-            color: #fff;
-            box-shadow: 0 0 0 0.2rem rgba(229,9,20,.25);
-        }
-        .form-control::placeholder { color: #666; }
-        .alert-success { background-color: #0a2a0a; border-color: #1a5a1a; color: #6fcf97; }
-        .alert-danger { background-color: #2a0a0a; border-color: #5a1a1a; color: #eb5757; }
-        footer {
-            background-color: #000;
-            border-top: 1px solid #222;
-            color: var(--nf-light);
-            font-size: 0.8rem;
-        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--rose-dark); border-radius: 3px; }
+
+        main { position: relative; z-index: 1; }
     </style>
     {% block head %}{% endblock %}
 </head>
 <body>
-    {% if current_user.is_authenticated %}
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('dashboard') }}">🎬 NF CHECKER</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navMenu">
-                <ul class="navbar-nav ms-auto align-items-center gap-2">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('dashboard') }}">
-                            <i class="bi bi-speedometer2"></i> Dashboard
-                        </a>
-                    </li>
-                    {% if current_user.is_admin() %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin') }}">
-                            <i class="bi bi-shield-check"></i> Admin
-                        </a>
-                    </li>
-                    {% endif %}
-                    <li class="nav-item">
-                        <span class="nav-link text-secondary">
-                            <i class="bi bi-person-circle"></i> {{ current_user.username }}
-                            {% if current_user.is_admin() %}<span class="badge" style="background:var(--nf-red);font-size:0.65rem;">ADMIN</span>{% endif %}
-                        </span>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-outline-danger btn-sm" href="{{ url_for('logout') }}">
-                            <i class="bi bi-box-arrow-right"></i> Logout
-                        </a>
-                    </li>
-                </ul>
+
+<!-- Floating hearts background -->
+<div class="hearts-bg" id="heartsContainer"></div>
+
+{% if current_user.is_authenticated %}
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('dashboard') }}">💕 Our Cinema</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('dashboard') }}">
+                        🎬 Dashboard
+                    </a>
+                </li>
+                {% if current_user.is_admin() %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin') }}">
+                        🔐 Admin
+                    </a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <span class="nav-link" style="color:var(--muted);">
+                        👤 {{ current_user.username }}
+                        {% if current_user.is_admin() %}<span class="badge" style="background:var(--rose);font-size:0.6rem;border-radius:20px;">ADMIN</span>{% endif %}
+                    </span>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-rose-outline btn-sm" href="{{ url_for('logout') }}">
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endif %}
+
+<main class="container py-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
             </div>
-        </div>
-    </nav>
-    {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-    <main class="container py-4">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-                </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+    {% block content %}{% endblock %}
+</main>
 
-        {% block content %}{% endblock %}
-    </main>
+<footer class="py-3 mt-5">
+    <div class="container text-center">
+        Made with 💕 — just for the two of us
+    </div>
+</footer>
 
-    <footer class="py-3 mt-5">
-        <div class="container text-center">
-            NF Checker Web &copy; 2024 — All rights reserved
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    {% block scripts %}{% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Floating hearts
+    const container = document.getElementById('heartsContainer');
+    const heartEmojis = ['💕','💗','💖','🌹','💓','✨','🌸'];
+    function createHeart() {
+        const h = document.createElement('span');
+        h.classList.add('heart');
+        h.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+        h.style.left = Math.random() * 100 + 'vw';
+        h.style.fontSize = (Math.random() * 1 + 0.5) + 'rem';
+        const dur = Math.random() * 12 + 8;
+        h.style.animationDuration = dur + 's';
+        h.style.animationDelay = Math.random() * 5 + 's';
+        container.appendChild(h);
+        setTimeout(() => h.remove(), (dur + 5) * 1000);
+    }
+    for(let i = 0; i < 12; i++) createHeart();
+    setInterval(createHeart, 2500);
+</script>
+{% block scripts %}{% endblock %}
 </body>
 </html>
