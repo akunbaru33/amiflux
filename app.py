@@ -113,6 +113,53 @@ def fetch_nftoken(cookie_dict: dict):
     return None, "N/A"
 
 
+# ── Country Names & Flags Mapping ─────────────────────────
+COUNTRY_NAMES = {
+    "AD": "Andorra", "AE": "United Arab Emirates", "AF": "Afghanistan", "AG": "Antigua & Barbuda",
+    "AL": "Albania", "AM": "Armenia", "AO": "Angola", "AR": "Argentina", "AT": "Austria", "AU": "Australia",
+    "AZ": "Azerbaijan", "BA": "Bosnia & Herzegovina", "BB": "Barbados", "BD": "Bangladesh", "BE": "Belgium",
+    "BF": "Burkina Faso", "BG": "Bulgaria", "BH": "Bahrain", "BI": "Burundi", "BJ": "Benin", "BM": "Bermuda",
+    "BN": "Brunei", "BO": "Bolivia", "BR": "Brazil", "BS": "Bahamas", "BT": "Bhutan", "BW": "Botswana",
+    "BY": "Belarus", "BZ": "Belize", "CA": "Canada", "CD": "DR Congo", "CF": "Central African Rep.",
+    "CG": "Congo", "CH": "Switzerland", "CI": "Ivory Coast", "CL": "Chile", "CM": "Cameroon", "CN": "China",
+    "CO": "Colombia", "CR": "Costa Rica", "CU": "Cuba", "CV": "Cape Verde", "CY": "Cyprus", "CZ": "Czech Republic",
+    "DE": "Germany", "DJ": "Djibouti", "DK": "Denmark", "DM": "Dominica", "DO": "Dominican Rep.", "DZ": "Algeria",
+    "EC": "Ecuador", "EE": "Estonia", "EG": "Egypt", "ES": "Spain", "ET": "Ethiopia", "FI": "Finland",
+    "FJ": "Fiji", "FR": "France", "GA": "Gabon", "GB": "United Kingdom", "GD": "Grenada", "GE": "Georgia",
+    "GH": "Ghana", "GM": "Gambia", "GN": "Guinea", "GR": "Greece", "GT": "Guatemala", "GY": "Guyana",
+    "HK": "Hong Kong", "HN": "Honduras", "HR": "Croatia", "HT": "Haiti", "HU": "Hungary", "ID": "Indonesia",
+    "IE": "Ireland", "IL": "Israel", "IN": "India", "IQ": "Iraq", "IR": "Iran", "IS": "Iceland", "IT": "Italy",
+    "JM": "Jamaica", "JO": "Jordan", "JP": "Japan", "KE": "Kenya", "KG": "Kyrgyzstan", "KH": "Cambodia",
+    "KR": "South Korea", "KW": "Kuwait", "KZ": "Kazakhstan", "LA": "Laos", "LB": "Lebanon", "LK": "Sri Lanka",
+    "LT": "Lithuania", "LU": "Luxembourg", "LV": "Latvia", "LY": "Libya", "MA": "Morocco", "MC": "Monaco",
+    "MD": "Moldova", "ME": "Montenegro", "MG": "Madagascar", "MK": "North Macedonia", "ML": "Mali",
+    "MM": "Myanmar", "MN": "Mongolia", "MO": "Macau", "MR": "Mauritania", "MT": "Malta", "MU": "Mauritius",
+    "MV": "Maldives", "MW": "Malawi", "MX": "Mexico", "MY": "Malaysia", "MZ": "Mozambique", "NA": "Namibia",
+    "NG": "Nigeria", "NI": "Nicaragua", "NL": "Netherlands", "NO": "Norway", "NP": "Nepal", "NZ": "New Zealand",
+    "OM": "Oman", "PA": "Panama", "PE": "Peru", "PG": "Papua New Guinea", "PH": "Philippines", "PK": "Pakistan",
+    "PL": "Poland", "PR": "Puerto Rico", "PS": "Palestine", "PT": "Portugal", "PY": "Paraguay", "QA": "Qatar",
+    "RO": "Romania", "RS": "Serbia", "RU": "Russia", "RW": "Rwanda", "SA": "Saudi Arabia", "SE": "Sweden",
+    "SG": "Singapore", "SI": "Slovenia", "SK": "Slovakia", "SN": "Senegal", "SO": "Somalia", "SR": "Suriname",
+    "SY": "Syria", "TH": "Thailand", "TJ": "Tajikistan", "TN": "Tunisia", "TR": "Turkey", "TT": "Trinidad & Tobago",
+    "TW": "Taiwan", "TZ": "Tanzania", "UA": "Ukraine", "UG": "Uganda", "UK": "United Kingdom", "US": "United States",
+    "UY": "Uruguay", "UZ": "Uzbekistan", "VE": "Venezuela", "VN": "Vietnam", "YE": "Yemen", "ZA": "South Africa",
+    "ZM": "Zambia", "ZW": "Zimbabwe"
+}
+
+
+def get_country_info(raw_code: str):
+    if not raw_code:
+        return "Unknown", "", "", "Unknown"
+    code = raw_code.strip().upper()
+    name = COUNTRY_NAMES.get(code, code).upper()
+    flag_emoji = ""
+    if len(code) == 2 and code.isalpha():
+        flag_emoji = chr(127397 + ord(code[0])) + chr(127397 + ord(code[1]))
+    display = f"{code} | {name}"
+    return display, code.lower(), flag_emoji, name
+
+
+
 class WebUser(UserMixin):
     def __init__(self, row):
         self.id       = row["id"]
@@ -201,18 +248,25 @@ def generate():
     direct_url = f"https://netflix.com/browse?nftoken={token}" if token else None
     mobile_url = f"https://netflix.com/unsupported?nftoken={token}" if token else None
 
+    # Format country
+    country_display, country_code, country_flag, country_name = get_country_info(hit.get("country", ""))
+
     return jsonify({
-        "success":       True,
-        "email":         hit["email"],
-        "country":       hit["country"],
-        "quality":       hit["quality"],
-        "cookie_str":    cookie_str,
-        "cookie_txt":    cookie_txt,
-        "nftoken":       token,
-        "token_expiry":  token_expiry,
-        "direct_url":    direct_url,
-        "mobile_url":    mobile_url,
-        "hits_remaining": _db.count_hits_db(),
+        "success":         True,
+        "email":           hit["email"],
+        "country":         hit["country"],
+        "country_display": country_display,
+        "country_code":    country_code,
+        "country_flag":    country_flag,
+        "country_name":    country_name,
+        "quality":         hit["quality"],
+        "cookie_str":      cookie_str,
+        "cookie_txt":      cookie_txt,
+        "nftoken":         token,
+        "token_expiry":    token_expiry,
+        "direct_url":      direct_url,
+        "mobile_url":      mobile_url,
+        "hits_remaining":  _db.count_hits_db(),
     })
 
 

@@ -94,7 +94,7 @@
                         <div style="color:#ff4d6d; font-size:0.85rem; font-weight:700; letter-spacing:0.5px; margin-bottom:8px;">
                             🌍 COUNTRY
                         </div>
-                        <div id="resCountry" style="font-weight:700; color:#ffffff; font-size:1.2rem;">
+                        <div id="resCountry" style="font-weight:700; color:#ffffff; font-size:1.15rem; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:8px;">
                             —
                         </div>
                     </div>
@@ -138,8 +138,14 @@
             const data = await res.json();
 
             if (data.success) {
-                document.getElementById('resEmail').textContent   = data.email    || 'Unknown';
-                document.getElementById('resCountry').textContent = data.country  || 'Unknown';
+                document.getElementById('resEmail').textContent = data.email || 'Unknown';
+                
+                let flagImg = (data.country_code && data.country_code.length === 2)
+                    ? `<img src="https://flagcdn.com/32x24/${data.country_code}.png" width="28" height="20" style="border-radius:4px; vertical-align:middle; box-shadow:0 0 10px rgba(255,43,86,0.35);" alt="${data.country_code}" onerror="this.style.display='none'">`
+                    : '';
+                let flagEmoji = data.country_flag ? `<span style="font-size:1.25rem;">${data.country_flag}</span>` : '';
+                let countryText = data.country_display || data.country || 'Unknown';
+                document.getElementById('resCountry').innerHTML = `${flagImg} ${flagEmoji} <span>${countryText}</span>`;
                 document.getElementById('resQuality').innerHTML   = `<span class="badge-quality">${data.quality || 'HD'}</span>`;
                 document.getElementById('resCookieStr').textContent = data.cookie_str || '';
                 document.getElementById('resCookieTxt').textContent = data.cookie_txt || '';
