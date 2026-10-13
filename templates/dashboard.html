@@ -16,8 +16,8 @@
                 <div>
                     <h5 style="color:#e50914;">Welcome, {{ current_user.username }}! 👋</h5>
                     <p style="color:#b3b3b3;margin:0;">
-                        Click <strong style="color:#fff;">Generate Cookie</strong> below to get a working Netflix cookie from our stock.
-                        Each click gives you one fresh cookie.
+                        Click <strong style="color:#fff;">Generate Cookie</strong> below to get a working Netflix
+                        1-click auto-login token from our stock.
                     </p>
                 </div>
             </div>
@@ -37,9 +37,40 @@
             </button>
         </div>
 
+        <!-- Error Area -->
+        <div id="errorArea" style="display:none;" class="alert alert-danger mt-3">
+            <i class="bi bi-exclamation-triangle"></i> <span id="errorMsg"></span>
+        </div>
+
         <!-- Result Area (hidden until generated) -->
         <div id="resultArea" style="display:none;">
             <hr style="border-color:#333;">
+
+            <!-- NETFLIX TOKEN BANNER -->
+            <div id="tokenBanner" style="display:none; background:linear-gradient(135deg,#1a0000,#2d0000); border:1px solid #e50914; border-radius:12px; padding:20px; margin-bottom:20px; text-align:center;">
+                <div style="font-size:1.1rem; font-weight:700; color:#e50914; margin-bottom:8px;">
+                    🎬 NETFLIX 1-CLICK TOKEN GENERATED 🌐
+                </div>
+                <div style="color:#b3b3b3; font-size:0.85rem; margin-bottom:16px;">
+                    Click below to auto-login into Netflix instantly
+                </div>
+                <div class="d-flex gap-3 justify-content-center flex-wrap mb-3">
+                    <a id="directWatchBtn" href="#" target="_blank" class="btn btn-netflix btn-lg">
+                        🖥️ Direct Watch (PC)
+                    </a>
+                    <a id="mobileWatchBtn" href="#" target="_blank" class="btn btn-outline-light btn-lg">
+                        📱 Mobile Watch
+                    </a>
+                </div>
+                <div style="color:#888; font-size:0.8rem;">
+                    ⏰ Token Expires: <span id="tokenExpiry" style="color:#fff;">—</span>
+                </div>
+            </div>
+
+            <!-- No token fallback -->
+            <div id="noTokenBanner" style="display:none;" class="alert" style="background:#1a1a1a; border:1px solid #555; border-radius:8px; color:#b3b3b3; text-align:center;">
+                ⚠️ Could not generate auto-login token for this cookie. Use the raw cookie below.
+            </div>
 
             <!-- Info Row -->
             <div class="row g-3 mb-3" id="resultInfo">
@@ -79,11 +110,6 @@
             <label style="color:#b3b3b3;font-size:0.85rem;"><i class="bi bi-file-text"></i> Cookie File Content</label>
             <div class="result-box" id="resCookieTxt">—</div>
         </div>
-
-        <!-- Error Area -->
-        <div id="errorArea" style="display:none;" class="alert alert-danger mt-3">
-            <i class="bi bi-exclamation-triangle"></i> <span id="errorMsg"></span>
-        </div>
     </div>
 </div>
 {% endblock %}
@@ -99,12 +125,15 @@
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Generating...';
         document.getElementById('resultArea').style.display = 'none';
         document.getElementById('errorArea').style.display = 'none';
+        document.getElementById('tokenBanner').style.display = 'none';
+        document.getElementById('noTokenBanner').style.display = 'none';
 
         try {
             const res = await fetch('/generate', { method: 'POST' });
             const data = await res.json();
 
             if (data.success) {
+                // Fill info
                 document.getElementById('resEmail').textContent = data.email || 'Unknown';
                 document.getElementById('resCountry').textContent = data.country || 'Unknown';
                 document.getElementById('resQuality').innerHTML = `<span class="badge-quality">${data.quality || 'HD'}</span>`;
@@ -113,6 +142,17 @@
                 document.getElementById('hitsCount').textContent = data.hits_remaining;
                 lastCookieTxt = data.cookie_txt;
                 lastEmail = data.email || 'cookie';
+
+                // Show NFToken section or fallback
+                if (data.nftoken && data.direct_url) {
+                    document.getElementById('directWatchBtn').href = data.direct_url;
+                    document.getElementById('mobileWatchBtn').href = data.mobile_url || data.direct_url;
+                    document.getElementById('tokenExpiry').textContent = data.token_expiry || 'N/A';
+                    document.getElementById('tokenBanner').style.display = 'block';
+                } else {
+                    document.getElementById('noTokenBanner').style.display = 'block';
+                }
+
                 document.getElementById('resultArea').style.display = 'block';
             } else {
                 document.getElementById('errorMsg').textContent = data.message;
