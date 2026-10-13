@@ -136,7 +136,12 @@
                     <label class="form-label" style="color:#ff85a1; font-size:0.85rem; font-weight:600;">
                         New Password
                     </label>
-                    <input type="password" name="new_password" class="form-control" placeholder="Enter new password (min. 4 chars)" required minlength="4" autofocus>
+                    <div class="input-group">
+                        <input type="password" id="modalNewPassword" name="new_password" class="form-control" placeholder="Enter new password (min. 4 chars)" required minlength="4" style="border-right:none; border-top-right-radius:0; border-bottom-right-radius:0;" autofocus>
+                        <button class="btn" type="button" onclick="toggleModalPassword()" title="Show/Hide Password" style="background-color:#0e0306; border:1.5px solid var(--border); border-left:none; border-top-right-radius:10px; border-bottom-right-radius:10px; color:#ff85a1; padding:0 16px;">
+                            <i class="bi bi-eye" id="modalEyeIcon"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="modal-footer" style="border-color:#4a101d; padding:16px 24px;">
                     <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Cancel</button>
@@ -164,6 +169,22 @@
             modal = new bootstrap.Modal(modalEl);
         }
         modal.show();
+    }
+
+    function toggleModalPassword() {
+        const input = document.getElementById('modalNewPassword');
+        const icon = document.getElementById('modalEyeIcon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+            icon.style.color = '#ffffff';
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+            icon.style.color = '#ff85a1';
+        }
     }
 </script>
 {% endblock %}
