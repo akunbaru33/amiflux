@@ -1,0 +1,27 @@
+BACKUP FONT ROMANTIS ASLI (Playfair Display + Poppins):
+============================================================
+Tanggal Backup: 14 Oktober 2026
+
+Jika Anda ingin kembali ke font romantis sebelumnya, ikuti catatan di bawah ini:
+
+1. CDN Google Fonts (di base.html <head>):
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+2. CSS Rules di base.html:
+- body { font-family: 'Poppins', sans-serif; }
+- h1, h2, h3, h4, h5, .brand-font { font-family: 'Playfair Display', serif; }
+- .navbar-brand { font-family: 'Playfair Display', serif; }
+- .card-header { font-family: 'Playfair Display', serif; }
+- .stats-number { font-family: 'Playfair Display', serif; }
+- .table thead th { font-family: 'Playfair Display', serif; }
+
+3. Inline Font Styles di template:
+- dashboard.html:
+  line 19: <h3 style="color:#ff2b56; font-family:'Playfair Display',serif; font-weight:700; margin-bottom:8px; text-shadow:0 0 12px rgba(255,43,86,0.3);">
+  line 90: <h4 style="color:#ff2b56; font-family:'Playfair Display',serif; font-weight:700; margin-bottom:8px; text-shadow:0 0 15px rgba(255,43,86,0.4);">
+- login.html:
+  line 23: <p class="text-center mb-4" style="color:#ff4d6d; font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:600;">
+- admin.html:
+  line 5:  <h4 class="mb-4" style="color:#c9637c; font-family:'Playfair Display',serif;">
+  line 126: <h5 class="modal-title" id="passModalLabel" style="color:#ff2b56; font-family:'Playfair Display',serif; font-weight:700;">
+============================================================
