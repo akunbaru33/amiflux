@@ -104,8 +104,10 @@
                 <div style="color:#e0a8b4; font-size:0.85rem;">
                     ⏰ Link expires: <span id="tokenExpiry" style="color:#ffffff; font-weight:600;">—</span>
                 </div>
-                <div id="cleanNotice" style="display:none; color:#ffccd5; font-size:0.85rem; margin-top:10px;"></div>
             </div>
+
+            <!-- Auto-Clean Notice (di luar kotak banner) -->
+            <div id="cleanNotice" style="display:none; text-align:center; color:#e0a8b4; font-size:0.85rem; margin-top:-6px; margin-bottom:18px;"></div>
 
             <!-- No Token Fallback -->
             <div id="noTokenBanner" style="display:none;" class="alert alert-danger text-center mb-4">
@@ -164,7 +166,7 @@
                     
                     if (data.deleted_dead && data.deleted_dead > 0) {
                         const cleanNotice = document.getElementById('cleanNotice');
-                        cleanNotice.innerHTML = `🧹 <span style="color:#ff85a1;">Auto-Clean:</span> ${data.deleted_dead} akun mati telah otomatis dibersihkan dari database!`;
+                        cleanNotice.innerHTML = `<span style="display:inline-block; background:rgba(255,43,86,0.08); border:1px solid #3d0c18; border-radius:20px; padding:6px 18px; color:#ffccd5; font-size:0.84rem;">🧹 <span style="color:#ff85a1; font-weight:600;">Auto-Clean:</span> ${data.deleted_dead} akun mati telah otomatis dibersihkan dari database!</span>`;
                         cleanNotice.style.display = 'block';
                     }
 
