@@ -104,6 +104,7 @@
                 <div style="color:#e0a8b4; font-size:0.85rem;">
                     ⏰ Link expires: <span id="tokenExpiry" style="color:#ffffff; font-weight:600;">—</span>
                 </div>
+                <div id="cleanNotice" style="display:none; color:#ffccd5; font-size:0.85rem; margin-top:10px;"></div>
             </div>
 
             <!-- No Token Fallback -->
@@ -127,15 +128,20 @@
     async function generateCookie() {
         const btn = document.getElementById('generateBtn');
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Getting your link...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Finding active Netflix link...';
         document.getElementById('resultArea').style.display = 'none';
         document.getElementById('errorArea').style.display = 'none';
         document.getElementById('tokenBanner').style.display = 'none';
         document.getElementById('noTokenBanner').style.display = 'none';
+        document.getElementById('cleanNotice').style.display = 'none';
 
         try {
             const res = await fetch('/generate', { method: 'POST' });
             const data = await res.json();
+
+            if (data.hits_remaining !== undefined) {
+                document.getElementById('hitsCount').textContent = data.hits_remaining;
+            }
 
             if (data.success) {
                 document.getElementById('resEmail').textContent = data.email || 'Unknown';
@@ -148,7 +154,6 @@
                 document.getElementById('resQuality').innerHTML   = `<span class="badge-quality">${data.quality || 'HD'}</span>`;
                 document.getElementById('resCookieStr').textContent = data.cookie_str || '';
                 document.getElementById('resCookieTxt').textContent = data.cookie_txt || '';
-                document.getElementById('hitsCount').textContent  = data.hits_remaining;
                 lastCookieTxt = data.cookie_txt || '';
                 lastEmail     = data.email || 'cookie';
 
@@ -156,6 +161,13 @@
                     document.getElementById('directWatchBtn').href   = data.direct_url;
                     document.getElementById('mobileWatchBtn').href   = data.mobile_url || data.direct_url;
                     document.getElementById('tokenExpiry').textContent = data.token_expiry || 'N/A';
+                    
+                    if (data.deleted_dead && data.deleted_dead > 0) {
+                        const cleanNotice = document.getElementById('cleanNotice');
+                        cleanNotice.innerHTML = `🧹 <span style="color:#ff85a1;">Auto-Clean:</span> ${data.deleted_dead} akun mati telah otomatis dibersihkan dari database!`;
+                        cleanNotice.style.display = 'block';
+                    }
+
                     document.getElementById('tokenBanner').style.display = 'block';
                 } else {
                     document.getElementById('noTokenBanner').style.display = 'block';

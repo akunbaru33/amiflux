@@ -72,7 +72,7 @@ BASE_HEADERS = {
 }
 
 
-def fetch_nftoken(cookie_dict: dict):
+def fetch_nftoken(cookie_dict: dict, timeout=5):
     """Call Netflix iOS FTL API to generate an NFToken. Returns (token, expiry_str) or (None, 'N/A')."""
     netflix_id = cookie_dict.get("NetflixId")
     if not netflix_id:
@@ -90,7 +90,7 @@ def fetch_nftoken(cookie_dict: dict):
     headers["Cookie"] = cookie_header
 
     try:
-        resp = requests.get(API_URL, params=QUERY_PARAMS, headers=headers, timeout=15, verify=False)
+        resp = requests.get(API_URL, params=QUERY_PARAMS, headers=headers, timeout=timeout, verify=False)
         if resp.status_code == 200:
             data = resp.json()
             token_data = (
@@ -218,55 +218,84 @@ def dashboard():
     return render_template("dashboard.html", hits_count=hits_count)
 
 
-# ── Generate Cookie + NFToken ─────────────────────────
+# ── Generate Cookie + NFToken (with Auto-Retry & Auto-Clean) ────
 @app.route("/generate", methods=["POST"])
 @login_required
 def generate():
-    hit = _db.get_random_hit_full()
-    if not hit:
-        return jsonify({"success": False, "message": "No cookies available in stock right now. Try again later."})
+    MAX_ATTEMPTS = 15  # Auto-retry up to 15 times behind the scenes
+    deleted_count = 0
 
-    bundle = hit["bundle"]
+    while MAX_ATTEMPTS > 0:
+        MAX_ATTEMPTS -= 1
+        hit = _db.get_random_hit_full()
+        if not hit:
+            return jsonify({
+                "success": False,
+                "message": "Stok cookies habis. Silakan tambahkan cookies baru melalui Telegram Bot atau Admin Panel.",
+                "hits_remaining": _db.count_hits_db(),
+                "deleted_dead": deleted_count
+            })
 
-    # Build cookie string (raw)
-    cookies_parts = []
-    for key in ["NetflixId", "SecureNetflixId", "nfvdid", "OptanonConsent", "flwssn", "gsid"]:
-        if key in bundle:
-            cookies_parts.append(f"{key}={bundle[key]}")
-    if not cookies_parts:
-        cookies_parts = [f"{k}={v}" for k, v in bundle.items()]
-    cookie_str = "; ".join(cookies_parts)
+        bundle = hit.get("bundle", {})
 
-    cookie_txt  = "# Netflix Cookie\n"
-    cookie_txt += f"# Email   : {hit['email']}\n"
-    cookie_txt += f"# Country : {hit['country']}\n"
-    cookie_txt += f"# Quality : {hit['quality']}\n"
-    cookie_txt += f"Cookies = {cookie_str}\n"
+        # Test dan generate NFToken langsung ke Netflix API
+        token, token_expiry = fetch_nftoken(bundle, timeout=5)
 
-    # Generate NFToken
-    token, token_expiry = fetch_nftoken(bundle)
-    direct_url = f"https://netflix.com/browse?nftoken={token}" if token else None
-    mobile_url = f"https://netflix.com/unsupported?nftoken={token}" if token else None
+        # JIKA MATI (token is None): Auto-hapus dari database dan lanjut cari akun lain!
+        if not token:
+            try:
+                _db.delete_hit_from_db(hit["id"])
+                deleted_count += 1
+                print(f"[Auto-Clean] Dead cookie ID {hit['id']} ({hit.get('email', 'unknown')}) automatically deleted.")
+            except Exception as e:
+                print(f"[Auto-Clean Error] Failed to delete hit ID {hit['id']}: {e}")
+            continue
 
-    # Format country
-    country_display, country_code, country_flag, country_name = get_country_info(hit.get("country", ""))
+        # JIKA AKTIF (token valid): Siapkan data lengkap
+        cookies_parts = []
+        for key in ["NetflixId", "SecureNetflixId", "nfvdid", "OptanonConsent", "flwssn", "gsid"]:
+            if key in bundle:
+                cookies_parts.append(f"{key}={bundle[key]}")
+        if not cookies_parts:
+            cookies_parts = [f"{k}={v}" for k, v in bundle.items()]
+        cookie_str = "; ".join(cookies_parts)
 
+        cookie_txt  = "# Netflix Cookie\n"
+        cookie_txt += f"# Email   : {hit['email']}\n"
+        cookie_txt += f"# Country : {hit['country']}\n"
+        cookie_txt += f"# Quality : {hit['quality']}\n"
+        cookie_txt += f"Cookies = {cookie_str}\n"
+
+        direct_url = f"https://netflix.com/browse?nftoken={token}"
+        mobile_url = f"https://netflix.com/unsupported?nftoken={token}"
+
+        country_display, country_code, country_flag, country_name = get_country_info(hit.get("country", ""))
+
+        return jsonify({
+            "success":         True,
+            "email":           hit["email"],
+            "country":         hit["country"],
+            "country_display": country_display,
+            "country_code":    country_code,
+            "country_flag":    country_flag,
+            "country_name":    country_name,
+            "quality":         hit["quality"],
+            "cookie_str":      cookie_str,
+            "cookie_txt":      cookie_txt,
+            "nftoken":         token,
+            "token_expiry":    token_expiry,
+            "direct_url":      direct_url,
+            "mobile_url":      mobile_url,
+            "hits_remaining":  _db.count_hits_db(),
+            "deleted_dead":    deleted_count
+        })
+
+    # Jika 15x coba berturut-turut ternyata expired semua:
     return jsonify({
-        "success":         True,
-        "email":           hit["email"],
-        "country":         hit["country"],
-        "country_display": country_display,
-        "country_code":    country_code,
-        "country_flag":    country_flag,
-        "country_name":    country_name,
-        "quality":         hit["quality"],
-        "cookie_str":      cookie_str,
-        "cookie_txt":      cookie_txt,
-        "nftoken":         token,
-        "token_expiry":    token_expiry,
-        "direct_url":      direct_url,
-        "mobile_url":      mobile_url,
-        "hits_remaining":  _db.count_hits_db(),
+        "success": False,
+        "message": f"Dibersihkan {deleted_count} cookies yang sudah expired dari database. Silakan klik tombol 'Generate' sekali lagi untuk melanjutkan pencarian!",
+        "hits_remaining": _db.count_hits_db(),
+        "deleted_dead": deleted_count
     })
 
 
