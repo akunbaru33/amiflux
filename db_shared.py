@@ -85,7 +85,7 @@ def init_all():
         )
     """)
 
-    # web_users table (for Flask web app login)
+        # web_users table (for Flask web app login)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS web_users (
             id          SERIAL PRIMARY KEY,
@@ -97,6 +97,89 @@ def init_all():
         )
     """)
 
+    # check_sessions table (for serverless Telegram bot checking)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS check_sessions (
+            user_id        BIGINT PRIMARY KEY,
+            chat_id        BIGINT,
+            status_msg_id  BIGINT,
+            bundles_json   TEXT,
+            current_idx    INTEGER DEFAULT 0,
+            total          INTEGER DEFAULT 0,
+            active_count   INTEGER DEFAULT 0,
+            inactive_count INTEGER DEFAULT 0,
+            dead_count     INTEGER DEFAULT 0,
+            hits_log_json  TEXT DEFAULT '[]',
+            stop_flag      INTEGER DEFAULT 0,
+            created_at     TEXT
+        )
+    """)
+
+    con.commit()
+    con.close()
+
+
+# ═══════════════════════════════════════════════════════
+#                   CHECK SESSIONS
+# ═══════════════════════════════════════════════════════
+
+def get_check_session(user_id: int):
+    con = get_con()
+    cur = con.cursor(row_factory=dict_row)
+    cur.execute("SELECT * FROM check_sessions WHERE user_id = %s", (user_id,))
+    row = cur.fetchone()
+    con.close()
+    return row
+
+def create_check_session(user_id: int, chat_id: int, status_msg_id: int, bundles: list):
+    con = get_con()
+    cur = con.cursor()
+    cur.execute("""
+        INSERT INTO check_sessions (
+            user_id, chat_id, status_msg_id, bundles_json,
+            current_idx, total, active_count, inactive_count, dead_count,
+            hits_log_json, stop_flag, created_at
+        ) VALUES (%s, %s, %s, %s, 0, %s, 0, 0, 0, '[]', 0, %s)
+        ON CONFLICT (user_id) DO UPDATE SET
+            chat_id = EXCLUDED.chat_id,
+            status_msg_id = EXCLUDED.status_msg_id,
+            bundles_json = EXCLUDED.bundles_json,
+            current_idx = 0,
+            total = EXCLUDED.total,
+            active_count = 0,
+            inactive_count = 0,
+            dead_count = 0,
+            hits_log_json = '[]',
+            stop_flag = 0,
+            created_at = EXCLUDED.created_at
+    """, (user_id, chat_id, status_msg_id, json.dumps(bundles), len(bundles), datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")))
+    con.commit()
+    con.close()
+
+def update_check_session_progress(user_id: int, current_idx: int, active_count: int, inactive_count: int, dead_count: int, hits_log: list):
+    con = get_con()
+    cur = con.cursor()
+    cur.execute("""
+        UPDATE check_sessions
+        SET current_idx = %s, active_count = %s, inactive_count = %s, dead_count = %s, hits_log_json = %s
+        WHERE user_id = %s
+    """, (current_idx, active_count, inactive_count, dead_count, json.dumps(hits_log), user_id))
+    con.commit()
+    con.close()
+
+def set_check_session_stop(user_id: int) -> bool:
+    con = get_con()
+    cur = con.cursor()
+    cur.execute("UPDATE check_sessions SET stop_flag = 1 WHERE user_id = %s RETURNING user_id", (user_id,))
+    row = cur.fetchone()
+    con.commit()
+    con.close()
+    return row is not None
+
+def delete_check_session(user_id: int):
+    con = get_con()
+    cur = con.cursor()
+    cur.execute("DELETE FROM check_sessions WHERE user_id = %s", (user_id,))
     con.commit()
     con.close()
 
@@ -221,7 +304,7 @@ def create_key(days: int, sold_to: str = None) -> str:
     con = get_con()
     cur = con.cursor()
     cur.execute(
-        "INSERT INTO keys (key, days, created_at, sold_to) VALUES (%s, %s, %s, %s)",
+        "INSERT INTO keys (key, days, created_at, used_by, used_at, sold_to) VALUES (%s, %s, %s, NULL, NULL, %s)",
         (key, days, datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"), sold_to)
     )
     con.commit()
@@ -238,7 +321,7 @@ def redeem_key(key: str, user_id: int):
         con.close()
         return False, "invalid"
     days, used_by = row
-    if used_by is not None:
+    if used_by is not None and used_by != 0:
         con.close()
         return False, "used"
     cur.execute(
@@ -257,9 +340,9 @@ def list_keys(used: bool = None):
     if used is None:
         cur.execute("SELECT key, days, created_at, used_by, used_at, sold_to FROM keys")
     elif used:
-        cur.execute("SELECT key, days, created_at, used_by, used_at, sold_to FROM keys WHERE used_by IS NOT NULL")
+        cur.execute("SELECT key, days, created_at, used_by, used_at, sold_to FROM keys WHERE used_by IS NOT NULL AND used_by != 0")
     else:
-        cur.execute("SELECT key, days, created_at, used_by, used_at, sold_to FROM keys WHERE used_by IS NULL")
+        cur.execute("SELECT key, days, created_at, used_by, used_at, sold_to FROM keys WHERE used_by IS NULL OR used_by = 0")
     rows = cur.fetchall()
     con.close()
     return rows
