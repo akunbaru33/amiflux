@@ -199,8 +199,17 @@ def get_user(user_id: int):
 
 
 def register_user(user, free_days: int):
-    """Register a new Telegram user with free trial. No-op if already exists."""
-    if get_user(user.id):
+    """Register a new Telegram user with free trial, or sync username/first_name if already exists."""
+    existing = get_user(user.id)
+    uname = user.username or ""
+    fname = user.first_name or ""
+    if existing:
+        if (existing[1] or "") != uname or (existing[2] or "") != fname:
+            con = get_con()
+            cur = con.cursor()
+            cur.execute("UPDATE users SET username = %s, first_name = %s WHERE user_id = %s", (uname, fname, user.id))
+            con.commit()
+            con.close()
         return
     now = datetime.utcnow()
     expires = now + timedelta(days=free_days)
@@ -208,7 +217,7 @@ def register_user(user, free_days: int):
     cur = con.cursor()
     cur.execute(
         "INSERT INTO users (user_id, username, first_name, joined_at, expires_at, is_banned) VALUES (%s,%s,%s,%s,%s,0) ON CONFLICT (user_id) DO NOTHING",
-        (user.id, user.username or "", user.first_name or "",
+        (user.id, uname, fname,
          now.strftime("%Y-%m-%d %H:%M:%S"),
          expires.strftime("%Y-%m-%d %H:%M:%S"))
     )
@@ -276,7 +285,7 @@ def get_user_tier(user_id: int, owner_id: int = None) -> str:
     Pass owner_id to check ownership (or set OWNER_ID env var).
     """
     if owner_id is None:
-        owner_id = int(os.environ.get("OWNER_ID", 0))
+        owner_id = int(os.environ.get("OWNER_ID", 8455335298))
     if user_id == owner_id:
         return "owner"
     row = get_user(user_id)

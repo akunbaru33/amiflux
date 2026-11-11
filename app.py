@@ -353,6 +353,41 @@ def admin_change_password(user_id):
     return redirect(url_for("admin"))
 
 
+# ═══════════════════════════════════════════════════════
+#         TELEGRAM WEBHOOK & AUTO-RELAY WORKER
+# ═══════════════════════════════════════════════════════
+
+@app.route("/api/telegram-webhook", methods=["POST"])
+def telegram_webhook():
+    """Receive incoming Telegram updates via Webhook on Vercel."""
+    try:
+        import telebot
+        import bot as _tg_bot
+        json_str = request.get_data().decode("utf-8")
+        update = telebot.types.Update.de_json(json_str)
+        _tg_bot.bot.process_new_updates([update])
+        return jsonify({"ok": True}), 200
+    except Exception as e:
+        print(f"[Webhook Error] {e}")
+        return jsonify({"ok": False, "error": str(e)}), 200
+
+
+@app.route("/api/check-worker", methods=["POST"])
+def check_worker():
+    """Auto-relay batch worker for checking .txt cookie files on Vercel."""
+    try:
+        import bot as _tg_bot
+        data = request.get_json(force=True, silent=True) or {}
+        user_id = data.get("user_id")
+        if not user_id:
+            return jsonify({"ok": False, "error": "Missing user_id"}), 400
+        res = _tg_bot.process_serverless_check_batch(int(user_id), batch_size=5)
+        return jsonify({"ok": True, "result": res}), 200
+    except Exception as e:
+        print(f"[Check Worker Error] {e}")
+        return jsonify({"ok": False, "error": str(e)}), 200
+
+
 # ── Startup ───────────────────────────────────────────
 if __name__ == "__main__":
     _db.init_all()
