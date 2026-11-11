@@ -19,7 +19,7 @@ OWNER_ID     = 8455335298          # Your Telegram user ID
 FREE_DAYS    = 2                   # Free trial duration (days)
 HITS_CHANNEL = -1004348992380      # tampomas channel — hits forwarded here
 
-bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML")
+bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML", threaded=False)
 
 # In-memory pending cookie batches per user
 pending_files = {}
@@ -577,11 +577,13 @@ def cmd_me(message):
 @bot.message_handler(commands=["stop"])
 def cmd_stop(message):
     user = message.from_user
-    if stop_flags.get(user.id) is None:
+    db_stopped = _db.set_check_session_stop(user.id)
+    if stop_flags.get(user.id) is None and not db_stopped:
         # No active checking session
         bot.reply_to(message, "⚠️ <b>No active checking session to stop.</b>")
         return
-    stop_flags[user.id] = True
+    if stop_flags.get(user.id) is not None:
+        stop_flags[user.id] = True
     bot.reply_to(message, "🛑 <b>Stop signal sent!</b>\nThe checker will stop after the current cookie finishes.")
 
 
@@ -1262,7 +1264,8 @@ def handle_document(message):
             print(f"[File Forward Error] {e}")
 
         # ── Block parallel checks ───────────────────────
-        if user.id in active_checkers:
+        existing_sess = _db.get_check_session(user.id)
+        if user.id in active_checkers or (existing_sess and existing_sess.get("stop_flag") == 0):
             bot.reply_to(
                 message,
                 "⚠️ <b>You already have a check running!</b>\n\n"
@@ -1276,12 +1279,16 @@ def handle_document(message):
             f"⏳ Starting check automatically..."
         )
 
-        import threading
-        threading.Thread(
-            target=run_check,
-            args=(message.chat.id, user, bundles),
-            daemon=True
-        ).start()
+        # If running on Vercel Serverless, use persistent DB session + auto-relay
+        if os.environ.get("VERCEL"):
+            start_serverless_check(message.chat.id, user, bundles)
+        else:
+            import threading
+            threading.Thread(
+                target=run_check,
+                args=(message.chat.id, user, bundles),
+                daemon=True
+            ).start()
 
     except Exception as e:
         bot.reply_to(message, f"❌ Error reading file: <code>{e}</code>")
@@ -1479,11 +1486,234 @@ def callback_stop_button(call):
         bot.answer_callback_query(call.id, "⛔ Only the user who started can stop it.")
         return
 
-    if stop_flags.get(uid) is False:
-        stop_flags[uid] = True
+    db_stopped = _db.set_check_session_stop(uid)
+    if stop_flags.get(uid) is False or db_stopped:
+        if stop_flags.get(uid) is False:
+            stop_flags[uid] = True
         bot.answer_callback_query(call.id, "🛑 Stop signal sent!")
     else:
         bot.answer_callback_query(call.id, "No active checking session.")
+
+
+# ═══════════════════════════════════════════════════════
+#          SERVERLESS AUTO-RELAY CHECKING ENGINE
+# ═══════════════════════════════════════════════════════
+
+def make_progress_bar_str(current, total, length=10):
+    if total <= 0:
+        return "[░░░░░░░░░░] 0%"
+    filled = int(length * current / total)
+    bar    = "█" * filled + "░" * (length - filled)
+    pct    = int(100 * current / total)
+    return f"[{bar}] {pct}%"
+
+
+def send_hits_file_report(chat_id, checked_count, active, inactive, dead, hits_log):
+    """Send hits .txt with summary as caption."""
+    import random
+    now   = datetime.utcnow()
+    date  = now.strftime("%d%m%Y")
+    rand4 = random.randint(1000, 9999)
+    fname = f"@netflixpctvphonebot_{date}_{rand4}.txt"
+
+    summary = (
+        f"🏁 <b>Netflix Links Check Complete!</b>\n\n"
+        f"📦 <b>Total Checked  :</b> {checked_count}\n"
+        f"🔥 <b>Active Hits    :</b> {active}\n"
+        f"⚠️ <b>No Plan/Free  :</b> {inactive}\n"
+        f"❌ <b>Dead/Expired   :</b> {dead}\n"
+        f"[ BOT : @netflixpctvphonebot ]"
+    )
+
+    if not hits_log:
+        bot.send_message(chat_id, summary)
+        return
+
+    lines = []
+    lines.append("╔══════════════════════════════════════════════════════╗")
+    lines.append("  🔥 NETFLIX HITS RESULT")
+    lines.append(f"  Generated : {now.strftime('%Y-%m-%d %H:%M:%S')} UTC")
+    lines.append(f"  Checked   : {checked_count} cookies")
+    lines.append(f"  Active    : {len(hits_log)}")
+    lines.append("  BOT       : @netflixpctvphonebot")
+    lines.append("╚══════════════════════════════════════════════════════╝\n")
+    for i, h in enumerate(hits_log, 1):
+        lines.append("─" * 54)
+        lines.append(f"  HIT #{i}")
+        lines.append(f"  Email   : {h.get('email', 'N/A')}")
+        lines.append(f"  Country : {h.get('country', 'N/A')}")
+        lines.append(f"  Status  : {h.get('status', 'N/A')}")
+        lines.append(f"  Quality : {h.get('quality', 'N/A')} ({h.get('streams', '?')} Screens)")
+        lines.append(f"  Expires : {h.get('token_expiry', 'N/A')}")
+        lines.append(f"  Direct  : {h.get('direct_url', 'N/A')}")
+        lines.append(f"  Mobile  : {h.get('mobile_url', 'N/A')}")
+    lines.append("\n" + "─" * 54)
+    lines.append("[ BOT : @netflixpctvphonebot ]")
+    content = "\n".join(lines)
+
+    try:
+        bot.send_document(
+            chat_id,
+            (fname, content.encode("utf-8")),
+            caption=summary
+        )
+    except Exception as e:
+        print(f"[Hits File Error] {e}")
+        bot.send_message(chat_id, summary)
+
+
+def trigger_next_relay(user_id: int):
+    """Fire-and-forget call to /api/check-worker on Vercel to continue checking."""
+    worker_url = "https://netflixami.vercel.app/api/check-worker"
+    try:
+        requests.post(worker_url, json={"user_id": user_id}, timeout=2.0, verify=False)
+    except Exception:
+        # Timeout is expected because fire-and-forget returns after launching next worker
+        pass
+
+
+def start_serverless_check(chat_id, user, bundles):
+    """Initialize checking session in Supabase and trigger first relay batch."""
+    total = len(bundles)
+    stop_markup = types.InlineKeyboardMarkup()
+    stop_markup.add(types.InlineKeyboardButton("🛑 Stop Checking", callback_data=f"stop_check_{user.id}"))
+
+    status_msg = bot.send_message(
+        chat_id,
+        f"⏳ <b>Checking cookies...</b>\n"
+        f"{make_progress_bar_str(0, total)}\n"
+        f"<b>(0/{total})</b>\n\n"
+        f"🔥 Active: 0 | ⚠️ No Plan: 0 | ❌ Dead: 0",
+        reply_markup=stop_markup
+    )
+
+    try:
+        bot.pin_chat_message(chat_id, status_msg.message_id, disable_notification=True)
+    except Exception:
+        pass
+
+    _db.create_check_session(user.id, chat_id, status_msg.message_id, bundles)
+    trigger_next_relay(user.id)
+
+
+def process_serverless_check_batch(user_id: int, batch_size: int = 3):
+    """Process a batch of cookies from DB session, update progress, and chain next relay if remaining."""
+    sess = _db.get_check_session(user_id)
+    if not sess:
+        return {"status": "no_session"}
+
+    chat_id        = sess["chat_id"]
+    status_msg_id  = sess["status_msg_id"]
+    bundles        = json.loads(sess["bundles_json"] or "[]")
+    current_idx    = sess["current_idx"]
+    total          = sess["total"]
+    active_count   = sess["active_count"]
+    inactive_count = sess["inactive_count"]
+    dead_count     = sess["dead_count"]
+    hits_log       = json.loads(sess["hits_log_json"] or "[]")
+    stop_flag      = sess["stop_flag"]
+
+    # Check if user pressed Stop
+    if stop_flag:
+        try:
+            bot.unpin_chat_message(chat_id, status_msg_id)
+        except Exception:
+            pass
+        send_hits_file_report(chat_id, current_idx, active_count, inactive_count, dead_count, hits_log)
+        _db.delete_check_session(user_id)
+        return {"status": "stopped"}
+
+    stop_markup = types.InlineKeyboardMarkup()
+    stop_markup.add(types.InlineKeyboardButton("🛑 Stop Checking", callback_data=f"stop_check_{user_id}"))
+
+    end_idx = min(current_idx + batch_size, total)
+    for i in range(current_idx, end_idx):
+        # Re-check stop flag mid-batch if needed
+        latest_sess = _db.get_check_session(user_id)
+        if not latest_sess or latest_sess.get("stop_flag"):
+            try:
+                bot.unpin_chat_message(chat_id, status_msg_id)
+            except Exception:
+                pass
+            send_hits_file_report(chat_id, i, active_count, inactive_count, dead_count, hits_log)
+            _db.delete_check_session(user_id)
+            return {"status": "stopped"}
+
+        bundle = bundles[i]
+        res = check_netflix_cookie(bundle)
+
+        if res.get("alive"):
+            if res.get("is_active") and res.get("nftoken") and res.get("direct_url", "N/A") != "N/A":
+                active_count += 1
+                hits_log.append(res)
+                save_hit_to_db(bundle, res, user_id)
+
+                hit_text = (
+                    f"🎬 <b>NETFLIX HIT #{active_count}</b> 🌐\n\n"
+                    f"👤 <b>Account Details:</b>\n"
+                    f"• <b>Email:</b> <code>{res.get('email', 'N/A')}</code>\n"
+                    f"• <b>Plan:</b> {res.get('quality', 'HD')} ({res.get('streams', '?')} Screens)\n"
+                    f"• <b>Country:</b> {res.get('country', 'N/A')}\n"
+                    f"• <b>Status:</b> {res.get('status', 'N/A')} ✔\n\n"
+                    f"🖥️ <a href=\"{res.get('direct_url', '#')}\">Click Here to Auto-Login (PC Browser)</a>\n"
+                    f"📱 <a href=\"{res.get('mobile_url', '#')}\">Click Here to Auto-Login (Mobile)</a>\n\n"
+                    f"⚠️ <i>Copy the link or click above to auto-login into Netflix!</i>\n"
+                    f"[ BOT : @netflixpctvphonebot ]"
+                )
+
+                markup = types.InlineKeyboardMarkup()
+                if res.get("nftoken"):
+                    markup.row(
+                        types.InlineKeyboardButton("🖥️ Direct Watch", url=res.get("direct_url")),
+                        types.InlineKeyboardButton("📱 Mobile Watch", url=res.get("mobile_url")),
+                    )
+
+                try:
+                    bot.send_message(
+                        chat_id,
+                        hit_text,
+                        reply_markup=markup if res.get("nftoken") else None,
+                        disable_web_page_preview=True,
+                    )
+                except Exception as e:
+                    print(f"[Send Hit Error] {e}")
+            else:
+                inactive_count += 1
+        else:
+            dead_count += 1
+
+    # Save updated state to Supabase
+    _db.update_check_session_progress(user_id, end_idx, active_count, inactive_count, dead_count, hits_log)
+
+    # Update Telegram progress bar
+    try:
+        bot.edit_message_text(
+            f"⏳ <b>Checking cookies...</b>\n"
+            f"{make_progress_bar_str(end_idx, total)}\n"
+            f"<b>({end_idx}/{total})</b>\n\n"
+            f"🔥 Active: {active_count} | "
+            f"⚠️ No Plan: {inactive_count} | "
+            f"❌ Dead: {dead_count}",
+            chat_id=chat_id,
+            message_id=status_msg_id,
+            reply_markup=stop_markup
+        )
+    except Exception:
+        pass
+
+    # If finished all cookies:
+    if end_idx >= total:
+        try:
+            bot.unpin_chat_message(chat_id, status_msg_id)
+        except Exception:
+            pass
+        send_hits_file_report(chat_id, total, active_count, inactive_count, dead_count, hits_log)
+        _db.delete_check_session(user_id)
+        return {"status": "completed", "checked": total}
+
+    # Otherwise, chain next relay!
+    trigger_next_relay(user_id)
+    return {"status": "relayed", "progress": f"{end_idx}/{total}"}
 
 
 def run_check(chat_id, user, bundles):
